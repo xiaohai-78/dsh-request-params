@@ -1,0 +1,124 @@
+{
+ "data": {
+  "id": "deepseek/deepseek-chat-v3.1",
+  "name": "DeepSeek: DeepSeek V3.1",
+  "created": 1755779628,
+  "description": "DeepSeek-V3.1 is a large hybrid reasonin",
+  "architecture": {
+   "tokenizer": "DeepSeek",
+   "instruct_type": "deepseek-v3.1",
+   "modality": "text->text",
+   "input_modalities": [
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ]
+  },
+  "endpoints": [
+   {
+    "name": "DeepInfra | deepseek/deepseek-chat-v3.1",
+    "model_id": "deepseek/deepseek-chat-v3.1",
+    "model_name": "DeepSeek: DeepSeek V3.1",
+    "context_length": 163840,
+    "pricing": {
+     "prompt": "0.00000025",
+     "completion": "0.00000095",
+     "input_cache_read": "0.00000013",
+     "discount": 0
+    },
+    "provider_name": "DeepInfra",
+    "tag": "deepinfra/fp4",
+    "service_tier": null,
+    "quantization": "fp4",
+    "max_completion_tokens": 32768,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "max_tokens",
+     "temperature",
+     "top_p",
+     "stop",
+     "frequency_penalty",
+     "presence_penalty",
+     "repetition_penalty",
+     "top_k",
+     "seed",
+     "min_p",
+     "tools",
+     "tool_choice",
+     "structured_outputs",
+     "logit_bias",
+     "response_format"
+    ],
+    "supports_tool_choice": {
+     "none": true,
+     "auto": true,
+     "required": true,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 86.66666666666667,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 99.85905567300915,
+    "supports_implicit_caching": true,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   },
+   {
+    "name": "SiliconFlow | deepseek/deepseek-chat-v3.1",
+    "model_id": "deepseek/deepseek-chat-v3.1",
+    "model_name": "DeepSeek: DeepSeek V3.1",
+    "context_length": 163840,
+    "pricing": {
+     "prompt": "0.00000027",
+     "completion": "0.000001",
+     "discount": 0
+    },
+    "provider_name": "SiliconFlow",
+    "tag": "siliconflow/fp8",
+    "service_tier": null,
+    "quantization": "fp8",
+    "max_completion_tokens": 147456,
+    "max_prompt_tokens": null,
+    "supported_parameters": [
+     "reasoning",
+     "include_reasoning",
+     "structured_outputs",
+     "response_format",
+     "temperature",
+     "top_p",
+     "top_k",
+     "frequency_penalty",
+     "tools",
+     "tool_choice",
+     "max_tokens"
+    ],
+    "supports_tool_choice": {
+     "none": false,
+     "auto": false,
+     "required": false,
+     "function": true
+    },
+    "status": 0,
+    "uptime_last_30m": 96.66666666666667,
+    "uptime_last_5m": 100,
+    "uptime_last_1d": 96.82890855457227,
+    "supports_implicit_caching": false,
+    "native_tools": {},
+    "supports_voice_cloning": false,
+    "supports_multiple_audio_references": false,
+    "supports_image_reference": false,
+    "supports_diarization": false,
+    "latency_last_30m": null,
+    "throughput_last_30m": null
+   }
+  ]
+ }
+}

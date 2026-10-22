@@ -1,0 +1,35 @@
+{
+ "data": [
+  {
+   "name": "Ionstream",
+   "slug": "ionstream",
+   "privacy_policy_url": "https://ionstream.ai/privacy-policy/",
+   "terms_of_service_url": "https://ionstream.ai/terms-and-conditions/",
+   "status_page_url": null,
+   "headquarters": "US",
+   "datacenters": [
+    "US"
+   ]
+  },
+  {
+   "name": "Moonshot AI",
+   "slug": "moonshotai",
+   "privacy_policy_url": "https://platform.moonshot.ai/docs/agreement/userprivacy",
+   "terms_of_service_url": "https://platform.moonshot.ai/docs/agreement/modeluse",
+   "status_page_url": null,
+   "headquarters": "SG",
+   "datacenters": [
+    "SG"
+   ]
+  },
+  {
+   "name": "Deepgram",
+   "slug": "deepgram",
+   "privacy_policy_url": "https://deepgram.com/privacy",
+   "terms_of_service_url": "https://deepgram.com/terms",
+   "status_page_url": null,
+   "headquarters": null,
+   "datacenters": []
+  }
+ ]
+}

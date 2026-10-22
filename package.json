@@ -1,0 +1,80 @@
+{
+  "name": "dsh-request-params",
+  "version": "0.1.0",
+  "description": "Add your own parameters to the model requests dsh sends: OpenRouter provider routing and fallback models, reasoning, sampling and custom body fields, and headers, for OpenRouter or any other gateway. Rules match by host, model, and path; a dry run previews the change and a request log shows what was sent and what the gateway answered.",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "openrouter",
+    "provider-routing",
+    "model-routing",
+    "fallback-models",
+    "reasoning",
+    "request-parameters",
+    "extra-body",
+    "request-headers",
+    "llm-gateway",
+    "gateway",
+    "llm",
+    "请求参数",
+    "额外参数",
+    "渠道",
+    "渠道路由",
+    "供应商路由"
+  ],
+  "author": "xiaohai-78",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaohai-78/dsh-request-params.git"
+  },
+  "homepage": "https://github.com/xiaohai-78/dsh-request-params#readme",
+  "bugs": {
+    "url": "https://github.com/xiaohai-78/dsh-request-params/issues"
+  },
+  "type": "module",
+  "icon": "icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "rules.js",
+    "interceptor.js",
+    "presets.js",
+    "openrouter.js",
+    "openrouter-providers.json",
+    "config-store.js",
+    "fs-retry.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  }
+}
