@@ -75,6 +75,16 @@ test('a gateway error is matched to the fields a rule set, by whole words', () =
   assert.deepEqual(mentionedFields({ errorText: 'store is not supported', changes: [{ kind: 'remove', path: 'store' }] }), [], 'a removed field was not sent')
 })
 
+test('a channel offers the recipes whose body fields fit its request format', () => {
+  const choicesFor = extract('const PRESET_ORDER', 'function problemText', 'choicesFor')
+  const recipes = format => choicesFor({ openrouter: false, ...format === undefined ? {} : { format } }).recipes
+  assert.deepEqual(recipes('anthropic'), ['helicone', 'cloudflare'])
+  assert.deepEqual(recipes('openai'), ['vllm-thinking', 'helicone', 'cloudflare', 'openai-cache'])
+  assert.deepEqual(recipes(undefined), ['vllm-thinking', 'helicone', 'cloudflare', 'openai-cache'])
+  assert.deepEqual(choicesFor({ openrouter: true, format: 'openai' }).recipes, [])
+  assert.equal(choicesFor(undefined).recipes.length, 4)
+})
+
 /** The page's pure helpers for channels, summaries, and the preview, with the two small helpers they use. */
 function helpers() {
   const prelude = ['const pl =', 'const filled ='].map(start => source.slice(source.indexOf(start), source.indexOf('\n', source.indexOf(start)))).join('\n')

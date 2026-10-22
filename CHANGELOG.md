@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- A channel known to send Anthropic Messages requests (the official DeepSeek route, or a route whose `api` is `anthropic-messages`) no longer offers the vLLM and OpenAI `prompt_cache_key` examples, whose body fields such a gateway would reject. The request format comes from the route's `api` setting, the official route, OpenRouter, or the paths of the requests seen.
+
 ## 0.2.0 (2026-10-22)
 
 The page is organized by channel.

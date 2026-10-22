@@ -1837,20 +1837,27 @@ window.__ModuleLoader__.load({
     const PRESET_ORDER = ['openrouter-routing', 'reasoning', 'sampling', 'session', 'attribution', 'strip', 'custom']
     /** The kinds whose fields only OpenRouter reads; a channel that is not OpenRouter does not offer them. */
     const OPENROUTER_ONLY = new Set(['openrouter-routing', 'reasoning', 'attribution'])
-    /** Ready-made custom rules for other gateways; each field is one the gateway documents. */
+    /**
+     * Ready-made custom rules for other gateways; each field is one the gateway documents. `format` names the request
+     * format whose body the fields belong in; a recipe without one only adds headers.
+     */
     const RECIPES = {
-      'vllm-thinking': { hosts: [], merge: { chat_template_kwargs: { enable_thinking: false } }, headers: {} },
+      'vllm-thinking': { format: 'openai', hosts: [], merge: { chat_template_kwargs: { enable_thinking: false } }, headers: {} },
       helicone: { hosts: ['*.helicone.ai'], merge: {}, headers: { 'Helicone-Auth': 'Bearer {{env:HELICONE_API_KEY}}', 'Helicone-Session-Id': '{{session}}', 'Helicone-Property-App': 'dsh' } },
       cloudflare: { hosts: ['gateway.ai.cloudflare.com'], merge: {}, headers: { 'cf-aig-cache-ttl': '3600', 'cf-aig-metadata': '{"session":"{{session}}"}' } },
-      'openai-cache': { hosts: ['api.openai.com'], merge: { prompt_cache_key: '{{session}}' }, headers: {} },
+      'openai-cache': { format: 'openai', hosts: ['api.openai.com'], merge: { prompt_cache_key: '{{session}}' }, headers: {} },
     }
     const RECIPE_ORDER = Object.keys(RECIPES)
 
-    /** The kinds of parameter a channel can get; with no channel (another address), every kind and recipe. */
+    /**
+     * The kinds of parameter a channel can get; with no channel (another address), every kind and recipe. A channel
+     * whose request format is known does not offer recipes whose body fields belong to another format.
+     */
     function choicesFor(channel) {
       if (channel === undefined) return { presets: PRESET_ORDER, recipes: RECIPE_ORDER }
       if (channel.openrouter) return { presets: PRESET_ORDER, recipes: [] }
-      return { presets: ['custom', 'sampling', 'session', 'strip'], recipes: RECIPE_ORDER }
+      const recipes = RECIPE_ORDER.filter(id => RECIPES[id].format === undefined || channel.format === undefined || RECIPES[id].format === channel.format)
+      return { presets: ['custom', 'sampling', 'session', 'strip'], recipes }
     }
 
     function problemText(t, problem) {

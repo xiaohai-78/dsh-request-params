@@ -47,6 +47,22 @@ function basePathOf(url) {
 }
 
 /**
+ * The request format a route sends: its `api` setting (`anthropic-messages`, `openai-completions`, …) when it has one,
+ * Anthropic Messages for the official DeepSeek routes, OpenAI Chat Completions for OpenRouter, else the paths of the
+ * requests seen. `other` is an `api` of another family; undefined means unknown.
+ * @param {{ api: unknown, official: boolean, openrouter: boolean, paths: string[] }} facts - what is known of the route.
+ * @returns {'anthropic' | 'openai' | 'other' | undefined} the format.
+ */
+function formatOf({ api, official, openrouter, paths }) {
+  if (typeof api === 'string' && api !== '') return api.startsWith('anthropic') ? 'anthropic' : api.startsWith('openai') ? 'openai' : 'other'
+  if (official) return 'anthropic'
+  if (openrouter) return 'openai'
+  if (paths.some(path => /\/(?:chat\/completions|responses)$/.test(path))) return 'openai'
+  if (paths.some(path => /\/messages$/.test(path))) return 'anthropic'
+  return undefined
+}
+
+/**
  * Describe the configured channels.
  * @param {{ providers: { id: string, name: string }[], directory: object[], descriptors: { ns: string, value: unknown }[],
  *   models: Map<string, { id: string, name: string }[] | Error>, endpoints: { scheme?: string, host: string, path: string,
@@ -54,9 +70,10 @@ function basePathOf(url) {
  *   directory, the settings forms, each route's models (or the error listing them), the endpoints the plugin has seen,
  *   and the environment.
  * @returns {{ id: string, name: string, baseURL?: string, host?: string, basePath?: string, source: 'settings' | 'default'
- *   | 'environment' | 'seen' | 'unknown', seen: boolean, sharedHost: boolean, sameEndpoint: boolean, openrouter: boolean, models: { id: string,
- *   name: string }[], modelCount: number, modelsError?: string }[]} one entry per live route, in the service's order. `source` says where the
- *   endpoint came from, `seen` whether a request to it was logged, `sharedHost` whether another channel sends to the same
+ *   | 'environment' | 'seen' | 'unknown', seen: boolean, sharedHost: boolean, sameEndpoint: boolean, openrouter: boolean,
+ *   format?: 'anthropic' | 'openai' | 'other', models: { id: string, name: string }[], modelCount: number, modelsError?: string }[]} one
+ *   entry per live route, in the service's order. `source` says where the endpoint came from, `seen` whether a request to it was logged,
+ *   `format` the request format it sends when that is known ({@link formatOf}), `sharedHost` whether another channel sends to the same
  *   host (a rule then needs the base path to tell them apart), and `sameEndpoint` whether one sends to the same base URL
  *   too (only the models can tell them apart then).
  */
@@ -69,14 +86,17 @@ export function describeChannels({ providers, directory, descriptors, models, en
     const seenAt = endpoints.filter(endpoint => endpoint.models.some(model => ids.has(model)))
     let url
     let source = 'unknown'
+    let api
     const entry = directory.find(item => item.provider === provider.id)
     if (entry !== undefined) {
       const profile = valueAt(settingsOf(entry.settingsNs), entry.settingsPath)
+      api = isObject(profile) ? profile.api : undefined
       url = httpUrl(isObject(profile) ? profile.baseURL : undefined)
       if (url !== undefined) source = 'settings'
       else if ((url = httpUrl(entry.defaultBaseURL)) !== undefined) source = 'default'
     }
-    if (url === undefined && entry?.defaultBaseURL === undefined && /deepseek/i.test(provider.id)) {
+    const official = entry?.defaultBaseURL === undefined && /deepseek/i.test(provider.id)
+    if (url === undefined && official) {
       // The official routes (API key and account) without a `baseURL` of their own use llm-deepseek's fallback: the environment, then the public API.
       if ((url = httpUrl(env[DEEPSEEK_BASE_URL_ENV])) !== undefined) source = 'environment'
       else { url = new URL(DEEPSEEK_PUBLIC_BASE_URL); source = 'default' }
@@ -85,14 +105,17 @@ export function describeChannels({ providers, directory, descriptors, models, en
       url = new URL(`${seenAt[0].scheme ?? 'https'}://${seenAt[0].host}`)
       source = 'seen'
     }
-    const seen = url !== undefined && seenAt.some(endpoint => endpoint.host === url.host && endpoint.path.startsWith(basePathOf(url)))
+    const reached = url === undefined ? [] : seenAt.filter(endpoint => endpoint.host === url.host && endpoint.path.startsWith(basePathOf(url)))
+    const openrouter = url !== undefined && (url.hostname === 'openrouter.ai' || url.hostname.endsWith('.openrouter.ai'))
+    const format = formatOf({ api, official, openrouter, paths: reached.map(endpoint => endpoint.path) })
     return {
       id: provider.id,
       name: typeof provider.name === 'string' && provider.name !== '' ? provider.name : provider.id,
       ...url === undefined ? {} : { baseURL: url.href, host: url.host, basePath: basePathOf(url) },
       source,
-      seen,
-      openrouter: url !== undefined && (url.hostname === 'openrouter.ai' || url.hostname.endsWith('.openrouter.ai')),
+      seen: reached.length > 0,
+      openrouter,
+      ...format === undefined ? {} : { format },
       models: modelList,
       modelCount: Array.isArray(listed) ? listed.length : 0,
       ...listed instanceof Error ? { modelsError: listed.message } : {},

@@ -68,6 +68,34 @@ test('confirms an endpoint from logged requests, and uses one when nothing else 
   assert.deepEqual([azure.source, azure.host, azure.seen], ['seen', 'res.openai.azure.com', true])
 })
 
+test('tells the request format from the api setting, the official route, OpenRouter, or the requests seen', () => {
+  const channels = describeChannels(input({
+    providers: ['gateway', 'vllm', 'gemini', 'deepseek-official', 'openrouter', 'seen-oa', 'seen-ant', 'mystery'].map(id => ({ id, name: id })),
+    directory: [
+      piEntry('gateway'), piEntry('vllm'), piEntry('gemini'), piEntry('openrouter', { defaultBaseURL: 'https://openrouter.ai/api/v1' }),
+      piEntry('seen-oa'), piEntry('seen-ant'), piEntry('mystery'),
+      { provider: 'deepseek-official', settingsNs: 'llm-deepseek-api-key', settingsPath: [] },
+    ],
+    descriptors: [{ ns: 'llm-pi-ai', value: { providers: {
+      'gateway': { api: 'anthropic-messages', baseURL: 'http://10.0.0.1/ant' },
+      'vllm': { api: 'openai-completions', baseURL: 'http://10.0.0.2/v1' },
+      'gemini': { api: 'google-generative-ai', baseURL: 'http://10.0.0.3' },
+      'seen-oa': { baseURL: 'http://10.0.0.4/v1' },
+      'seen-ant': { baseURL: 'http://10.0.0.5' },
+      'mystery': { baseURL: 'http://10.0.0.6' },
+    } } }],
+    models: new Map([['seen-oa', [{ id: 'oa' }]], ['seen-ant', [{ id: 'ant' }]]]),
+    endpoints: [
+      { scheme: 'http', host: '10.0.0.4', path: '/v1/chat/completions', models: ['oa'] },
+      { scheme: 'http', host: '10.0.0.5', path: '/v1/messages', models: ['ant'] },
+    ],
+  }))
+  assert.deepEqual(Object.fromEntries(channels.map(channel => [channel.id, channel.format])), {
+    'gateway': 'anthropic', 'vllm': 'openai', 'gemini': 'other', 'deepseek-official': 'anthropic', 'openrouter': 'openai',
+    'seen-oa': 'openai', 'seen-ant': 'anthropic', 'mystery': undefined,
+  })
+})
+
 test('says when two channels send to the same host, and when a model list failed', () => {
   const channels = describeChannels(input({
     providers: [{ id: 'a', name: 'A' }, { id: 'b', name: '' }, { id: 'c', name: 'C' }],
