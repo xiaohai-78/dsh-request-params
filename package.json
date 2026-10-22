@@ -57,7 +57,9 @@
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "self-update.js",
+    "update.js"
   ],
   "scripts": {
     "test": "node --test \"test/*.test.js\""

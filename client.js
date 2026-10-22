@@ -363,7 +363,7 @@ window.__ModuleLoader__.load({
       'help.how': '参数按渠道管理：选一个渠道、加上参数，「发送时加上」会立刻显示请求会多出什么，「最近请求」显示真实请求的结果。不属于任何渠道的地址放在「其他地址」，自己写明主机、路径和模型。官方 DeepSeek 接口，以及 llm-pi-ai 里的 OpenAI 兼容和 Anthropic 兼容渠道都适用。',
       'help.templates': '值里可以写 {{model}}（当前模型）、{{session}}（会话 ID）、{{env:名称}}（环境变量，适合放密钥，值不会显示）。',
       'help.safety': '为安全起见：messages、tools、model 等核心字段默认不能改，Authorization、x-api-key 等认证头永远不能改。参数出了问题，请求会原样发出，不会被拦住。',
-      'help.privacy': '参数保存在本机配置目录的 .dsh-request-params/config.json。请求记录只在内存里，不写入磁盘；不保存对话内容，只有请求出错时会留下网关返回的前 2 KB 文字。页面上有供应商路由参数时，会读取 OpenRouter 公开的供应商和模型目录，不带任何密钥和内容。',
+      'help.privacy': '参数保存在本机配置目录的 .dsh-request-params/config.json。请求记录只在内存里，不写入磁盘；不保存对话内容，只有请求出错时会留下网关返回的前 2 KB 文字。页面上有供应商路由参数时，会读取 OpenRouter 公开的供应商和模型目录；检查更新时，会向 DSH 配置的 npm 源询问这个插件的最新版本。两者都不带任何密钥和内容。',
       'save.bar': '保存修改',
       'save.unsaved': '有未保存的修改',
       'save.hint': 'Ctrl/⌘ + S 保存',
@@ -391,6 +391,46 @@ window.__ModuleLoader__.load({
       'err.bad-response': '收到了看不懂的回复',
       'err.bad-model': '模型 ID 要写成 作者/名称，例如 deepseek/deepseek-chat',
       'err.bad-request': '请求不对',
+      'update.available': '有新版本 {latest}（当前 {version}）',
+      'update.changes': '查看更新记录',
+      'update.upgrade': '升级…',
+      'update.manualHint': '在终端运行下面的命令升级，然后重启 dsh：',
+      'update.gitHint': '你是从 GitHub 安装的。要升级，在终端运行下面的命令，然后重启 dsh：',
+      'update.confirm': '把「请求参数」从 {from} 升级到 {to}？DSH 会从 {host} 下载并安装。装好后，有的 DSH 版本会立即换上新版本（这个页面会关闭，重新打开即可），有的要重启 dsh 才生效。正在运行的会话不受影响，你的参数都会保留。',
+      'update.confirmAction': '升级',
+      'update.installing': '正在安装 {to}…（{phase}）',
+      'update.phase.installing': '下载并安装',
+      'update.phase.applying': '应用到配置',
+      'update.phase.cancelling': '正在取消',
+      'update.cancel': '取消安装',
+      'update.doneRestart': '已安装 {to}，重启 dsh 后生效。',
+      'update.doneApplied': '已升级到 {to}，刷新页面后使用新版本。',
+      'update.restartHow': '网页版：停掉 dsh web 后重新运行；桌面应用：退出后重新打开。',
+      'update.reload': '刷新页面',
+      'update.reloaded': '插件已被替换，刷新页面后使用新版本。',
+      'update.rollback': '想退回旧版本，运行：',
+      'update.failed': '升级没有完成：{error}',
+      'update.failedHint': '可以重试，或在终端手动升级：',
+      'update.retry': '重试',
+      'update.upgraded': '已升级到 {to}（之前是 {from}）',
+      'update.cancelled': '已取消，已安装的版本没有变化。',
+      'update.version': '{name} {version}',
+      'update.dev': '本地开发安装，不检查更新',
+      'update.auto': '自动检查更新',
+      'update.checkNow': '检查更新',
+      'update.checking': '检查中…',
+      'update.upToDate': '已是最新版本',
+      'update.upToDateNotice': '已是最新版本（{version}）',
+      'update.checkFailed': '检查失败：{error}',
+      'update.copy': '复制',
+      'update.copied': '已复制',
+      'err.unavailable': 'DSH 的插件管理不可用',
+      'err.upgrade-running': '已经有一个升级在进行',
+      'err.not-upgradable': '这种安装方式不能在页面里升级',
+      'err.update-changed': '最新版本已变成 {latest}，请重新确认',
+      'err.up-to-date': '已经是最新版本',
+      'err.check-failed': '无法读取最新版本：{error}',
+      'err.not-running': '没有正在进行的升级',
     }
 
     const EN = {
@@ -741,7 +781,7 @@ window.__ModuleLoader__.load({
       'help.how': 'Parameters are organized by channel: pick a channel and add parameters; "Added when sending" shows at once what the request will carry, and "Recent requests" shows how real requests went. Addresses outside every channel live under "Other addresses" and name their own hosts, paths, and models. It works with the official DeepSeek endpoint and with the OpenAI-compatible and Anthropic-compatible channels in llm-pi-ai.',
       'help.templates': 'Values may use {{model}} (the model), {{session}} (the session ID), and {{env:NAME}} (an environment variable; good for keys, never shown).',
       'help.safety': 'For safety, core fields such as messages, tools, and model cannot be changed unless custom fields and headers opt in, and credential headers such as Authorization and x-api-key can never be changed. If a parameter has a problem the request goes out unchanged instead of being blocked.',
-      'help.privacy': 'Parameters are stored in .dsh-request-params/config.json next to your profile. The request log lives in memory and is never written to disk; it keeps no conversation text, only the first 2 KB of an error the gateway returned. While a provider routing parameter is on the page, it reads the public OpenRouter provider and model catalog, sending no keys or content.',
+      'help.privacy': 'Parameters are stored in .dsh-request-params/config.json next to your profile. The request log lives in memory and is never written to disk; it keeps no conversation text, only the first 2 KB of an error the gateway returned. While a provider routing parameter is on the page, it reads the public OpenRouter provider and model catalog; the update check asks the npm registry DSH uses for the latest version of this plugin. Neither sends keys or content.',
       'save.bar': 'Save changes',
       'save.unsaved': 'Unsaved changes',
       'save.hint': 'Ctrl/⌘ + S to save',
@@ -769,6 +809,46 @@ window.__ModuleLoader__.load({
       'err.bad-response': 'Got an answer that could not be read',
       'err.bad-model': 'A model ID looks like author/name, e.g. deepseek/deepseek-chat',
       'err.bad-request': 'Bad request',
+      'update.available': 'Version {latest} is available (you have {version})',
+      'update.changes': 'See what changed',
+      'update.upgrade': 'Upgrade…',
+      'update.manualHint': 'Run this command in a terminal, then restart dsh:',
+      'update.gitHint': 'You installed from GitHub. To upgrade, run this in a terminal, then restart dsh:',
+      'update.confirm': 'Upgrade Request Parameters from {from} to {to}? DSH downloads it from {host} and installs it. Some DSH versions switch to the new version at once (this page closes; open it again), others load it when you restart dsh. Running sessions are not affected, and your parameters stay.',
+      'update.confirmAction': 'Upgrade',
+      'update.installing': 'Installing {to}… ({phase})',
+      'update.phase.installing': 'downloading and installing',
+      'update.phase.applying': 'applying to the configuration',
+      'update.phase.cancelling': 'cancelling',
+      'update.cancel': 'Cancel install',
+      'update.doneRestart': 'Installed {to}. It loads when you restart dsh.',
+      'update.doneApplied': 'Upgraded to {to}. Reload this page to use the new version.',
+      'update.restartHow': 'Web: stop dsh web and run it again. Desktop app: quit and reopen it.',
+      'update.reload': 'Reload page',
+      'update.reloaded': 'The plugin was replaced. Reload this page to use the new version.',
+      'update.rollback': 'To go back to the old version, run:',
+      'update.failed': 'The upgrade did not complete: {error}',
+      'update.failedHint': 'You can try again, or upgrade by hand in a terminal:',
+      'update.retry': 'Try again',
+      'update.upgraded': 'Upgraded to {to} (was {from})',
+      'update.cancelled': 'Cancelled; the installed version is unchanged.',
+      'update.version': '{name} {version}',
+      'update.dev': 'Development install; updates are not checked',
+      'update.auto': 'Check for updates automatically',
+      'update.checkNow': 'Check for updates',
+      'update.checking': 'Checking…',
+      'update.upToDate': 'You have the latest version',
+      'update.upToDateNotice': 'You have the latest version ({version})',
+      'update.checkFailed': 'Check failed: {error}',
+      'update.copy': 'Copy',
+      'update.copied': 'Copied',
+      'err.unavailable': 'The DSH plugin manager is not available',
+      'err.upgrade-running': 'An upgrade is already running',
+      'err.not-upgradable': 'This kind of install cannot be upgraded from the page',
+      'err.update-changed': 'The latest version is now {latest}; confirm again',
+      'err.up-to-date': 'This is already the latest version',
+      'err.check-failed': 'Could not read the latest version: {error}',
+      'err.not-running': 'No upgrade is running',
     }
 
     const CSS = `
@@ -1003,6 +1083,15 @@ window.__ModuleLoader__.load({
 .rp-onbar.is-primary { background: var(--dsw-alias-toast-label, #fff); color: var(--dsw-alias-toast-bg, #2b2f36); }
 .rp-onbar.is-icon { width: 30px; padding: 0; display: inline-flex; align-items: center; justify-content: center; opacity: .7; }
 .rp-onbar:disabled { opacity: .4; cursor: default; }
+.rp-update { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: var(--rp-r-md); background: var(--rp-accent-bg); color: var(--rp-fg); }
+.rp-update.is-bad { background: color-mix(in srgb, var(--rp-bad) 10%, transparent); }
+.rp-update .rp-btn:not(.is-primary) { background: var(--rp-surface); }
+.rp-cmd { display: flex; gap: 8px; align-items: center; }
+.rp-cmd code { flex: 1 1 auto; min-width: 0; padding: 5px 10px; border-radius: var(--rp-r-sm); background: var(--rp-surface); font-family: var(--rp-mono); font-size: 12px; overflow-wrap: anywhere; }
+.rp-update .rp-link { align-self: center; }
+.rp-footer { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; padding-top: 8px; border-top: .5px solid var(--rp-line); font-size: 12px; color: var(--rp-fg3); }
+.rp-footer .rp-check { align-items: center; }
+.rp-footer .rp-check input { margin: 0; }
 .rp :is(button, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid var(--rp-accent); outline-offset: 2px; }
 .rp .rp-input:focus-visible, .rp .rp-chipinput:focus-visible { outline: none; }
 @keyframes rp-pulse { from { opacity: .45 } to { opacity: .9 } }
@@ -2321,6 +2410,163 @@ window.__ModuleLoader__.load({
         ['help.what', 'help.how', 'help.templates', 'help.safety', 'help.privacy'].map(key => h('p', { key, className: 'rp-helpp' }, t(key))))
     }
 
+    /**
+     * This plugin's own update state: the version check, and an upgrade that is running or finished. The upgrade runs
+     * on the Host; while it runs this polls it once a second, and a Host that replaced the plugin meanwhile reads as
+     * `reloaded`.
+     * @param {(error: Error) => string} describe - words a failed action for the page.
+     */
+    function useUpdate(describe) {
+      const [info, setInfo] = React.useState(null)
+      const [checking, setChecking] = React.useState(false)
+      const [progress, setProgress] = React.useState(null)
+      const [problem, setProblem] = React.useState(null)
+      /** Read the status, checking the registry now when `refresh`; answers the status, or undefined when the Host did not answer. */
+      const load = (refresh) => {
+        setChecking(refresh)
+        return post('updateStatus', { refresh }).then((value) => {
+          setInfo(value)
+          setProgress(previous => (previous !== null && previous.state !== 'idle' ? previous : value.upgrade.state === 'idle' ? null : value.upgrade))
+          return value
+        }, () => undefined).finally(() => setChecking(false))
+      }
+      React.useEffect(() => { void load(false) }, [])
+      const running = progress?.state === 'installing'
+      React.useEffect(() => {
+        if (!running) return undefined
+        let failures = 0
+        const replaced = () => {
+          setProgress(previous => ({ ...previous, state: 'reloaded' }))
+          void load(false)
+        }
+        const timer = setInterval(() => {
+          post('upgradeStatus', {}).then((status) => {
+            failures = 0
+            if (status.state === 'idle') replaced()
+            else setProgress(status)
+          }, () => {
+            // The Host answers nothing or does not know the action: the installer replaced this plugin while it ran.
+            failures += 1
+            if (failures >= 5) replaced()
+          })
+        }, 1000)
+        return () => clearInterval(timer)
+      }, [running])
+      return {
+        info, checking, progress, problem,
+        check: () => load(true),
+        dismiss: () => { setProgress(null); setProblem(null) },
+        setCheck: (enabled) => {
+          // The box follows the click at once; a failed save puts it back.
+          setInfo(previous => (previous === null ? previous : { ...previous, checkUpdates: enabled }))
+          return post('setUpdateCheck', { enabled }).then(setInfo, (error) => {
+            setInfo(previous => (previous === null ? previous : { ...previous, checkUpdates: !enabled }))
+            setProblem(describe(error))
+          })
+        },
+        start: (version) => {
+          setProblem(null)
+          return post('upgrade', { version }).then(setProgress, error => setProblem(describe(error)))
+        },
+        dismissUpgraded: () => post('dismissUpgraded', {}).then(setInfo, error => setProblem(describe(error))),
+        cancel: () => post('cancelUpgrade', {}).then(undefined, error => setProblem(describe(error))),
+      }
+    }
+
+    /** A shell command with a button that copies it. */
+    function Command({ ui, text }) {
+      const [copied, setCopied] = React.useState(false)
+      React.useEffect(() => {
+        if (!copied) return undefined
+        const timer = setTimeout(() => setCopied(false), 1500)
+        return () => clearTimeout(timer)
+      }, [copied])
+      return h('div', { className: 'rp-cmd' },
+        h('code', null, text),
+        h('button', { type: 'button', className: 'rp-btn is-sm', onClick: () => { navigator.clipboard?.writeText(text).then(() => setCopied(true), () => undefined) } }, ui.t(copied ? 'update.copied' : 'update.copy')))
+    }
+
+    /** The banner for a newer release, and for an upgrade that is running, finished, failed, or cancelled. */
+    function UpdateBanner({ ui, update }) {
+      const { t } = ui
+      const { info, progress, problem } = update
+      const [confirming, setConfirming] = React.useState(false)
+      if (info === null) return null
+      const failure = progress?.failure
+      const reason = failure === undefined ? '' : failure.message ?? failure.code ?? failure.kind ?? 'unknown'
+      const problemLine = problem === null ? null : h('div', { className: 'rp-hint is-error', role: 'alert' }, problem)
+      if (progress?.state === 'installing') {
+        const phaseKey = `update.phase.${progress.phase}`
+        return h('div', { className: 'rp-update', role: 'status' },
+          h('div', { className: 'rp-bar' },
+            h('span', { className: 'rp-grow' }, t('update.installing', { to: progress.to, phase: t(phaseKey) === phaseKey ? progress.phase : t(phaseKey) })),
+            h('button', { type: 'button', className: 'rp-btn', disabled: progress.phase === 'cancelling', onClick: update.cancel }, t('update.cancel'))),
+          problemLine)
+      }
+      if (progress?.state === 'done' || progress?.state === 'reloaded') {
+        return h('div', { className: 'rp-update', role: 'status' },
+          h('strong', null, `✓ ${progress.state === 'reloaded' ? t('update.reloaded') : t(progress.restartRequired ? 'update.doneRestart' : 'update.doneApplied', { to: progress.to })}`),
+          progress.state === 'done' && progress.restartRequired ? h('div', { className: 'rp-hint' }, t('update.restartHow')) : null,
+          h('div', { className: 'rp-hint' }, t('update.rollback')),
+          h(Command, { ui, text: info.commands.rollback }),
+          h('div', { className: 'rp-bar rp-end' },
+            progress.restartRequired === true ? null : h('button', { type: 'button', className: 'rp-btn is-primary', onClick: () => window.location.reload() }, t('update.reload')),
+            h('button', { type: 'button', className: 'rp-btn', onClick: update.dismiss }, t('dismiss'))))
+      }
+      if (progress?.state === 'failed') {
+        return h('div', { className: 'rp-update is-bad', role: 'alert' },
+          h('strong', null, t('update.failed', { error: reason })),
+          failure?.output === undefined ? null : h('pre', { className: 'rp-pre' }, failure.output),
+          h('div', { className: 'rp-hint' }, t('update.failedHint')),
+          h(Command, { ui, text: info.commands.upgrade }),
+          h('div', { className: 'rp-bar rp-end' },
+            info.canUpgrade ? h('button', { type: 'button', className: 'rp-btn', onClick: () => { update.dismiss(); setConfirming(true) } }, t('update.retry')) : null,
+            h('button', { type: 'button', className: 'rp-btn', onClick: update.dismiss }, t('dismiss'))))
+      }
+      if (progress?.state === 'cancelled') {
+        return h('div', { className: 'rp-update', role: 'status' },
+          h('div', { className: 'rp-bar' },
+            h('span', { className: 'rp-grow' }, t('update.cancelled')),
+            h('button', { type: 'button', className: 'rp-btn', onClick: update.dismiss }, t('dismiss'))))
+      }
+      if (progress === null && info.upgraded !== undefined) {
+        return h('div', { className: 'rp-update', role: 'status' },
+          h('div', { className: 'rp-bar' },
+            h('strong', { className: 'rp-grow' }, `✓ ${t('update.upgraded', { to: info.upgraded.to, from: info.upgraded.from })}`),
+            h('a', { className: 'rp-link', href: info.changesUrl, target: '_blank', rel: 'noreferrer' }, t('update.changes')),
+            h('button', { type: 'button', className: 'rp-btn', onClick: update.dismissUpgraded }, t('dismiss'))),
+          problemLine)
+      }
+      if (!info.newer) return problem === null ? null : h('div', { className: 'rp-note is-bad', role: 'alert' }, problem)
+      const manual = !info.canUpgrade && info.source !== 'link'
+      const title = t('update.available', { latest: info.latest, version: info.version })
+      return h('section', { className: 'rp-update', 'aria-label': title },
+        h('div', { className: 'rp-bar' },
+          h('strong', { className: 'rp-grow' }, title),
+          h('a', { className: 'rp-link', href: info.changesUrl, target: '_blank', rel: 'noreferrer' }, t('update.changes')),
+          info.canUpgrade ? h('button', { type: 'button', className: 'rp-btn is-primary', disabled: confirming, onClick: () => setConfirming(true) }, t('update.upgrade')) : null),
+        manual ? h('div', { className: 'rp-hint' }, t(info.source === 'git' ? 'update.gitHint' : 'update.manualHint')) : null,
+        manual ? h(Command, { ui, text: info.source === 'git' ? info.commands.git : info.commands.upgrade }) : null,
+        problemLine,
+        confirming ? h(ConfirmBox, { ui, text: t('update.confirm', { from: info.version, to: info.latest, host: info.host }), action: t('update.confirmAction'), onCancel: () => setConfirming(false), onConfirm: () => { setConfirming(false); void update.start(info.latest) } }) : null)
+    }
+
+    /** The installed version, a manual check, and the switch for the automatic check. */
+    function UpdateFooter({ ui, update }) {
+      const { t } = ui
+      const { info, checking } = update
+      if (info === null) return null
+      const outcome = info.error !== undefined ? t('update.checkFailed', { error: info.error }) : info.checkedAt !== undefined && info.latest !== undefined && !info.newer ? t('update.upToDate') : undefined
+      return h('footer', { className: 'rp-footer' },
+        h('span', null, t('update.version', { name: info.name, version: info.version })),
+        info.source === 'link' ? h('span', null, t('update.dev')) : [
+          h('button', { key: 'check', type: 'button', className: 'rp-link', disabled: checking, onClick: update.check }, checking ? t('update.checking') : t('update.checkNow')),
+          h('label', { key: 'auto', className: 'rp-check' },
+            h('input', { type: 'checkbox', checked: info.checkUpdates, onChange: event => update.setCheck(event.target.checked) }), t('update.auto')),
+          outcome === undefined ? null : h('span', { key: 'outcome', className: info.error === undefined ? '' : 'rp-hint is-error' }, outcome),
+        ])
+    }
+
     /** The page's sections: each configured channel, the other addresses, the request log, and the dry run. */
     function Nav({ ui, sel, onSelect, channelsState, rules, otherCount, recent }) {
       const { t } = ui
@@ -2403,6 +2649,7 @@ window.__ModuleLoader__.load({
         return text === key ? fallback : text
       }
       const describe = error => (error instanceof ActionFailure ? describeCode(error.code, error.details, error.message) : error.message)
+      const update = useUpdate(describe)
       const show = (next) => {
         clearTimeout(noticeTimer.current)
         setNotice(next)
@@ -2760,6 +3007,14 @@ window.__ModuleLoader__.load({
         void load(true)
         void loadChannels()
       }
+      /** Check for a newer release now; a newer one shows as the banner at the top, anything else as a message. */
+      const checkForUpdate = () => update.check().then((value) => {
+        if (value === undefined) show({ kind: 'warn', text: describeCode('network', {}, 'Network error') })
+        else if (value.source === 'link') show({ kind: 'done', text: t('update.dev') })
+        else if (value.error !== undefined) show({ kind: 'warn', text: t('update.checkFailed', { error: value.error }) })
+        else if (!value.newer) show({ kind: 'done', text: t('update.upToDateNotice', { version: value.version }) })
+        else document.querySelector('.rp')?.scrollTo({ top: 0, behavior: 'smooth' })
+      })
 
       const ui = {
         t, lang, describe, draft,
@@ -2824,10 +3079,13 @@ window.__ModuleLoader__.load({
                 h(MenuItem, { key: 'import', close, onClick: () => setPanel('import') }, t('import.button')),
                 h(MenuItem, { key: 'export', close, disabled: draft === null || draft.rules.length === 0, onClick: exportRules }, t('export.button')),
                 h(MenuItem, { key: 'help', close, onClick: () => setPanel('help') }, t('help.button')),
+                h(MenuItem, { key: 'update', close, disabled: update.checking, onClick: checkForUpdate }, update.checking ? t('update.checking') : t('update.checkNow')),
                 h('div', { key: 'sep', className: 'rp-menusep', role: 'separator' }),
                 h(MenuItem, { key: 'refresh', close, disabled: loading, onClick: refresh }, t('refresh')),
               ]))),
-          body),
+          h(UpdateBanner, { ui, update }),
+          body,
+          h(UpdateFooter, { ui, update })),
         h('div', { className: 'rp-dock' },
           notice === null ? null : h('div', { className: `rp-toast${notice.kind === 'warn' ? ' is-warn' : ''}`, role: notice.kind === 'warn' ? 'alert' : 'status' },
             h('span', { className: 'rp-grow' }, notice.text),

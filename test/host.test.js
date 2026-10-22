@@ -258,3 +258,16 @@ test('says there are no channels to list when dsh has no llm service', async () 
     await host.stop()
   }
 })
+
+test('answers the update actions on its route', async () => {
+  const host = await mount({ respond: () => Response.json({ name: 'dsh-request-params', version: '99.0.0', dist: { tarball: 'https://registry.npmjs.org/dsh-request-params/-/dsh-request-params-99.0.0.tgz' } }) })
+  try {
+    const status = await host.call({ action: 'updateStatus', refresh: true })
+    assert.equal(status.ok, true)
+    assert.equal(status.value.latest, '99.0.0')
+    assert.equal(host.sent.at(-1).input, 'https://registry.npmjs.org/dsh-request-params/latest')
+    assert.equal((await host.call({ action: 'upgrade', version: '99.0.0' })).code, 'unavailable', 'without the plugin manager nothing is installed')
+  } finally {
+    await host.stop()
+  }
+})

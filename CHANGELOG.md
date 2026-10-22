@@ -11,6 +11,7 @@ The page is organized by channel.
 - The kinds offered follow the channel: OpenRouter-only kinds appear for OpenRouter channels and under **Other addresses**.
 - Import, export, help, and refresh are in the header menu; the save bar and messages float at the bottom of the page.
 - A stored preset form is normalized when the rules are read, so a hand-edited form with missing fields still opens.
+- **Updates**: the page asks the npm registry DSH uses for a newer release of this plugin (at most every 12 hours, or on **Check for updates**) and installs it in one click with DSH's installer, with progress, cancel, and a rollback command; the next page load says **Upgraded to** the new version. A switch turns the automatic check off.
 
 ## 0.1.0 (2026-10-22)
 

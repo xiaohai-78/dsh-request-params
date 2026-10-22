@@ -22,6 +22,7 @@ Each *parameter* belongs to a channel (or names its own hosts, models, and paths
 - **See what happened after.** Each channel shows its recent requests: the status, what was added, and, when the gateway refused, what it said. **Request log** has every model request dsh sent.
 - **Safe by default.** Core fields (`messages`, `tools`, `model`, …) and credential headers (`Authorization`, `x-api-key`, …) cannot be changed. Secrets come from environment variables (`{{env:NAME}}`) and are never shown. If something goes wrong while applying a parameter, the request goes out unchanged instead of failing.
 - **One hook for the usual routes.** The official DeepSeek endpoint and the OpenAI-compatible and Anthropic-compatible routes of `llm-pi-ai` (OpenRouter, a self-hosted vLLM, an enterprise gateway) all go through the same `fetch` hook; see Compatibility for what was verified.
+- **Updates in one click.** The page tells you when a newer version of this plugin is out and installs it with DSH's own installer after you confirm.
 - **Everyday comforts.** A switch pauses everything at once. Unsaved edits survive leaving the page, and Ctrl/⌘ + S saves. Deleting can be undone. A rules file changed elsewhere is detected instead of overwritten. Parameters export to and import from JSON. English and Chinese, light and dark, down to phone width.
 
 <p align="center">
@@ -119,7 +120,7 @@ When several parameters apply to one request they run from top to bottom, and a 
 - Parameters are stored on your machine in `<profile>/.dsh-request-params/config.json`. Nothing is sent anywhere because of them.
 - The request log lives in memory only (the last 50 requests; cleared on restart). It holds the model, the address, and the changes made; for a failed request it also keeps the first 2 KB of the gateway's answer, which can quote the request. It never holds the conversation itself. Values from environment variables appear as "not shown", and are replaced with `[env]` if the gateway's answer quotes them.
 - The channel list comes from dsh's own channel list and settings (with secrets redacted), to show each channel's address and models; the page changes nothing there and stores nothing.
-- The only network access is OpenRouter's public catalog (`/providers`, `/models`, `/models/{id}/endpoints`), read only while the page shows a provider routing parameter: the provider list, the providers that serve the previewed model, and fallback model suggestions. It sends no key and no content, and the provider list also works offline from a built-in copy.
+- The page reaches the network for two things. OpenRouter's public catalog (`/providers`, `/models`, `/models/{id}/endpoints`) is read only while the page shows a provider routing parameter: the provider list, the providers that serve the previewed model, and fallback model suggestions; the provider list also works offline from a built-in copy. The update check asks the npm registry DSH is configured with for this plugin's latest version (see Updates). Neither sends a key or any content.
 
 ## The rules file
 
@@ -182,16 +183,29 @@ dsh plugin --profile web remove dsh-request-params
 
 Requests go back to what dsh sends by itself. The parameters stay in `<profile>/.dsh-request-params/config.json`, so installing again brings them back; delete the folder to clean up.
 
+## Updates
+
+The page checks for a newer version of this plugin and can install it.
+
+- **Check**: when you open the page, the plugin asks the npm registry DSH is configured with (a mirror works) for the latest version of `dsh-request-params`, at most once every 12 hours. The request names only the package. Turn it off with **Check for updates automatically** at the bottom of the page; **Check for updates** there and in the **⋯** menu still works. Development installs (`link:`) are never checked.
+- **Upgrade**: a banner at the top shows a newer release with **See what changed** and **Upgrade…**. After you confirm, DSH's own installer downloads that release's tarball from the registry and installs it, with progress and **Cancel install**. The installer restores the profile's files when an install fails or is cancelled, and the banner then shows the installer's message and the command to upgrade by hand. Only the `latest` release is offered, never a prerelease, and the tarball address must be this package's file on the registry that answered.
+- **After the upgrade**: depending on the DSH version, the new version takes over at once (this page closes; open it again) or loads when you restart dsh (web: run `dsh web` again; desktop app: quit and reopen). The next time you open the page it says **Upgraded to** the new version. Your parameters stay, and running sessions are not affected. The banner shows the command that goes back to the old version.
+- **Installed from GitHub**: the banner shows `dsh plugin --profile web add github:xiaohai-78/dsh-request-params` instead of a button.
+- **By hand**: run `dsh plugin --profile web add dsh-request-params@latest`, or on the Plugins page use **Add plugin** with `https://registry.npmjs.org/dsh-request-params/-/dsh-request-params-<version>.tgz`. Without `@latest` the command does nothing, because DSH keeps the version it installed.
+- **From 0.1.0**: 0.1.0 has no update check; upgrade it by hand once.
+
 ## Development
 
 | File | Role |
 |---|---|
-| `index.js` | Host plugin: wraps `fetch`, serves `POST /api/dsh-request-params` (`get`, `save`, `check`, `dryRun`, `preset`, `recent`, `clearRecent`, `resetDamaged`, `channels`, `orProviders`, `orModels`, `orEndpoints`), reloads the rules when the file changes |
+| `index.js` | Host plugin: wraps `fetch`, serves `POST /api/dsh-request-params` (`get`, `save`, `check`, `dryRun`, `preset`, `recent`, `clearRecent`, `resetDamaged`, `channels`, `orProviders`, `orModels`, `orEndpoints`, and the update actions `updateStatus`, `setUpdateCheck`, `dismissUpgraded`, `upgrade`, `upgradeStatus`, `cancelUpgrade`), reloads the rules when the file changes |
 | `rules.js` | Rule engine: validation, host/model/path matching, templates, applying rules to a body and headers |
 | `interceptor.js` | The `fetch` wrapper and the request log |
 | `presets.js` | Preset forms and the rules they build |
 | `config-store.js` | Rules file with atomic writes and revision checks |
 | `channels.js` | Reads the configured channels from dsh's `llm` and `settings` services and works out each one's endpoint |
+| `update.js` | Version check helpers without DSH services: version comparison, how the profile depends on the package, the registries to ask, and the check that the registry's tarball address is this package's file on that registry |
+| `self-update.js` | The update actions: the check with its 12-hour cache, the switch and the note an upgrade leaves in `<profile>/.dsh-request-params/settings.json`, and the install through DSH's plugin manager (`installBundle`, `cancelInstall`, the `plugin-manager/install-state` progress) |
 | `openrouter.js` | OpenRouter catalog client with cache and offline fallback; `openrouter-providers.json` is the built-in provider list |
 | `client.js` | The web page (English and Chinese): channel list, preview, parameter cards, request log, dry run |
 | `test/` | `node --test` suites; `test/fixtures/` holds trimmed OpenRouter catalog answers |
@@ -202,7 +216,7 @@ Requests go back to what dsh sends by itself. The parameters stay in `<profile>/
 npm test
 ```
 
-runs 85 tests with `node --test`: the rule engine, the `fetch` wrapper (chain safety, bodies as strings, bytes, or `Request`, error capture), presets, the rules file, the catalog client, reading the configured channels, the host actions, the page's matching of parameters and requests to channels and its preview and summaries, and that both languages of the page have the same text. The page and the hook were also run end to end against real dsh processes with a local mock model server: all three routes above, parameters added per channel and seen in the requests that went out, the preview, provider search and the not-serving flag, saving, pausing, undo, import and export, a rules file changed elsewhere, and light, dark, narrow, and phone layouts. Screenshots in this README come from that setup; the OpenRouter catalog in them is OpenRouter's public one, and no request was sent to OpenRouter.
+runs 107 tests with `node --test`: the rule engine, the `fetch` wrapper (chain safety, bodies as strings, bytes, or `Request`, error capture), presets, the rules file, the catalog client, reading the configured channels, the host actions, the page's matching of parameters and requests to channels and its preview and summaries, the update check and upgrade, that the package publishes every module it imports, and that both languages of the page have the same text. The page and the hook were also run end to end against real dsh processes with a local mock model server: all three routes above, parameters added per channel and seen in the requests that went out, the preview, provider search and the not-serving flag, saving, pausing, undo, import and export, a rules file changed elsewhere, and light, dark, narrow, and phone layouts. Updating was checked against the real npm registry on dsh 0.2.1-rc.2: a copy labelled 0.0.9 found 0.1.0, **Upgrade…** installed it through DSH's installer, the profile then depended on the 0.1.0 tarball, and the new version took over without a restart; installing the same release again reported it as installed and waiting for a restart. Screenshots in this README come from that setup; the OpenRouter catalog in them is OpenRouter's public one, and no request was sent to OpenRouter.
 
 ## Changes
 

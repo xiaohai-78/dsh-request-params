@@ -7,11 +7,12 @@
  * The interceptor (interceptor.js) applies them to every model request this process sends and keeps a short log; the
  * page reads the log, previews rules against a sample request (`dryRun`), and reads OpenRouter's public provider and
  * model catalog (openrouter.js) to fill the routing form. `channels` lists the model channels dsh has configured, so a
- * rule can start from one (channels.js).
+ * rule can start from one (channels.js). The update actions check for a newer release of this plugin and install it
+ * with DSH's plugin manager (self-update.js).
  *
- * Nothing leaves the machine except those catalog reads, which carry no rules, keys, or conversation text.
+ * Nothing leaves the machine except those catalog reads and the update check, which carry no rules, keys, or
+ * conversation text.
  */
-import { readFileSync } from 'node:fs'
 import { rename, stat } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { collectChannels } from './channels.js'
@@ -20,6 +21,7 @@ import { createInterceptor } from './interceptor.js'
 import { CatalogError, createCatalog } from './openrouter.js'
 import { PRESET_IDS, buildPreset, emptyForm, formOfRule, presetHosts } from './presets.js'
 import { FORBIDDEN_HEADERS, LIMITS, PROTECTED_BODY, applyRules, invalidTargets, normalizeConfig, requestModel, rulesFor, validateConfig } from './rules.js'
+import { PACKAGE_VERSION, selfUpdateActions } from './self-update.js'
 
 const ROUTE = '/api/dsh-request-params'
 const STATE_DIR = '.dsh-request-params'
@@ -58,18 +60,11 @@ function settledConfig(raw) {
   return config
 }
 
-function readVersion() {
-  try {
-    return JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
-  } catch {
-    // A missing or unreadable package.json only leaves the version out of the page.
-    return undefined
-  }
-}
-
 export function apply(ctx) {
-  const store = new ConfigStore(join(dirname(ctx.configEditor.documentPath), STATE_DIR))
-  const m = { ctx, store, config: { enabled: true, rules: [] }, revision: 0, damaged: undefined, seen: undefined, checkedAt: 0, version: readVersion(), catalog: createCatalog() }
+  const stateDir = join(dirname(ctx.configEditor.documentPath), STATE_DIR)
+  const store = new ConfigStore(stateDir)
+  const updates = selfUpdateActions({ ctx, stateDir, refuse: (code, text, details) => new ActionError(code, text, details) })
+  const m = { ctx, store, updates, config: { enabled: true, rules: [] }, revision: 0, damaged: undefined, seen: undefined, checkedAt: 0, version: PACKAGE_VERSION === 'unknown' ? undefined : PACKAGE_VERSION, catalog: createCatalog() }
   // The first request waits for the rules; later ones check the file at most every few seconds.
   const settle = promise => promise.catch(error => ctx.logger.warn(`dsh-request-params could not read its rules: ${message(error)}`))
   m.loading = settle(load(m))
@@ -257,6 +252,16 @@ const ACTIONS = {
   async orEndpoints(m, body) {
     return catalog(() => m.catalog.endpoints(body.model, body.refresh === true))
   },
+
+  /** This plugin's version and the latest release; `refresh` checks now (self-update.js). */
+  updateStatus: (m, body) => m.updates.updateStatus(body),
+  setUpdateCheck: (m, body) => m.updates.setUpdateCheck(body),
+  /** Forget the note that an upgrade from this page finished, once the page has shown it. */
+  dismissUpgraded: m => m.updates.dismissUpgraded(),
+  /** Install the latest release with DSH's plugin manager; answers at once, and `upgradeStatus` follows it. */
+  upgrade: (m, body) => m.updates.upgrade(body),
+  upgradeStatus: m => m.updates.upgradeStatus(),
+  cancelUpgrade: m => m.updates.cancelUpgrade(),
 }
 
 async function catalog(read) {

@@ -22,6 +22,7 @@ dsh 只发它的模型适配器认识的字段。而 [OpenRouter](https://openro
 - **发出后看发生了什么。** 每个渠道都列出它的最近请求：状态、加上了什么，网关拒绝时还有它的原话。「**请求记录**」里是 dsh 发出的所有模型请求。
 - **默认安全。** 核心字段（`messages`、`tools`、`model` 等）和认证请求头（`Authorization`、`x-api-key` 等）改不了。密钥用环境变量（`{{env:名称}}`），不会显示出来。应用参数时出了问题，请求原样发出，不会失败。
 - **常用路线共用一个入口。** 官方 DeepSeek 接口，以及 `llm-pi-ai` 的 OpenAI 兼容和 Anthropic 兼容路线（OpenRouter、自建 vLLM、企业网关）走的是同一个 `fetch` 入口；验证过哪些，见「兼容性与限制」。
+- **一键更新。** 插件有新版本时页面会告诉你，确认后用 DSH 自带的安装器装上。
 - **日常用着顺手。** 一个开关就能全部暂停；没保存的修改离开页面也不丢，Ctrl/⌘ + S 保存；删除可以撤销；规则文件在别处被改过会被发现，而不是被覆盖；参数可以导出、导入 JSON；中英文界面，浅色深色都有，手机宽度也能用。
 
 <p align="center">
@@ -119,7 +120,7 @@ OpenRouter 渠道可以加所有种类。其他渠道只列出不限于 OpenRout
 - 参数保存在你本机的 `<profile>/.dsh-request-params/config.json`，不会因此向任何地方发送东西。
 - 请求记录只在内存里（最近 50 个请求，重启后清空），包含模型、地址和做过的改动；请求失败时还会留下网关返回内容的前 2 KB，那里面可能引用请求内容。它不保存对话本身。来自环境变量的值显示为「不显示」；如果网关的回复里引用了它，会被替换成 `[env]`。
 - 渠道列表来自 dsh 自己的渠道列表和设置（密钥已隐去），用来显示每个渠道的地址和模型；页面不会改动它们，也不保存。
-- 唯一会联网的是 OpenRouter 的公开目录（`/providers`、`/models`、`/models/{id}/endpoints`），只在页面上有供应商路由参数时读取：供应商列表、提供预览模型的供应商、备用模型的候选。不带密钥也不带内容；供应商列表在离线时用插件自带的一份。
+- 页面只为两件事联网。OpenRouter 的公开目录（`/providers`、`/models`、`/models/{id}/endpoints`）只在页面上有供应商路由参数时读取：供应商列表、提供预览模型的供应商、备用模型的候选；供应商列表在离线时用插件自带的一份。检查更新时向 DSH 配置的 npm 源询问这个插件的最新版本（见「更新」）。两者都不带密钥，也不带任何内容。
 
 ## 规则文件
 
@@ -182,16 +183,29 @@ dsh plugin --profile web remove dsh-request-params
 
 请求回到 dsh 自己发的样子。参数仍留在 `<profile>/.dsh-request-params/config.json`，重新安装会带回来；想清理就删掉那个文件夹。
 
+## 更新
+
+页面会检查这个插件有没有新版本，并且能直接装上。
+
+- **检查**：打开页面时，插件向 DSH 配置的 npm 源（镜像也可以）询问 `dsh-request-params` 的最新版本，最多 12 小时一次，请求里只有包名。页面底部的「自动检查更新」可以关掉；底部和「⋯」菜单里的「检查更新」仍然可用。本地开发安装（`link:`）不检查。
+- **升级**：有新版本时，页面顶部出现提示，带「查看更新记录」和「升级…」。确认后，DSH 自带的安装器从 npm 源下载那个版本的压缩包并安装，显示进度，可以「取消安装」。安装失败或取消时，安装器会把配置文件恢复原样，提示里会给出安装器的原话和手动升级的命令。只提供 `latest` 正式版，不提供预发布版；压缩包地址必须是回答的那个源上这个包的文件。
+- **升级之后**：取决于 DSH 版本，新版本要么立即换上（这个页面会关闭，重新打开即可），要么在重启 dsh 后生效（网页版：重新运行 `dsh web`；桌面应用：退出后重新打开）。下次打开页面会显示「已升级到」新版本。你的参数都会保留，正在运行的会话不受影响。提示里会给出退回旧版本的命令。
+- **从 GitHub 安装的**：提示里显示 `dsh plugin --profile web add github:xiaohai-78/dsh-request-params`，不显示按钮。
+- **手动升级**：运行 `dsh plugin --profile web add dsh-request-params@latest`，或者在「插件」页点「添加插件」，填 `https://registry.npmjs.org/dsh-request-params/-/dsh-request-params-<版本>.tgz`。不带 `@latest` 的命令什么都不做，因为 DSH 会保留已经装好的版本。
+- **从 0.1.0 升级**：0.1.0 没有更新检查，需要手动升级一次。
+
 ## 开发
 
 | 文件 | 作用 |
 |---|---|
-| `index.js` | 宿主插件：包装 `fetch`，提供 `POST /api/dsh-request-params`（`get`、`save`、`check`、`dryRun`、`preset`、`recent`、`clearRecent`、`resetDamaged`、`channels`、`orProviders`、`orModels`、`orEndpoints`），规则文件变化时重新加载 |
+| `index.js` | 宿主插件：包装 `fetch`，提供 `POST /api/dsh-request-params`（`get`、`save`、`check`、`dryRun`、`preset`、`recent`、`clearRecent`、`resetDamaged`、`channels`、`orProviders`、`orModels`、`orEndpoints`，以及更新相关的 `updateStatus`、`setUpdateCheck`、`dismissUpgraded`、`upgrade`、`upgradeStatus`、`cancelUpgrade`），规则文件变化时重新加载 |
 | `rules.js` | 规则引擎：校验、主机/模型/路径匹配、模板、把规则应用到请求体和请求头 |
 | `interceptor.js` | `fetch` 包装和请求日志 |
 | `presets.js` | 预设表单，以及它们生成的规则 |
 | `config-store.js` | 规则文件：原子写入、版本检查 |
 | `channels.js` | 从 dsh 的 `llm` 和 `settings` 服务读取已配置的渠道，算出每个渠道的地址 |
+| `update.js` | 不依赖 DSH 服务的版本检查工具：版本比较、配置依赖这个包的方式、要询问的源，以及核对源给的压缩包地址确实是那个源上这个包的文件 |
+| `self-update.js` | 更新相关的动作：带 12 小时缓存的检查，`<profile>/.dsh-request-params/settings.json` 里的开关和升级留下的记录，以及通过 DSH 插件管理器安装（`installBundle`、`cancelInstall`、`plugin-manager/install-state` 进度） |
 | `openrouter.js` | OpenRouter 目录客户端，带缓存和离线兜底；`openrouter-providers.json` 是自带的供应商列表 |
 | `client.js` | 网页（中英文）：渠道列表、预览、参数卡片、请求记录、试运行 |
 | `test/` | `node --test` 测试；`test/fixtures/` 里是裁剪过的 OpenRouter 目录返回 |
@@ -202,7 +216,7 @@ dsh plugin --profile web remove dsh-request-params
 npm test
 ```
 
-用 `node --test` 跑 85 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、读取已配置的渠道、宿主的各个动作、页面把参数和请求对应到渠道的逻辑以及预览和概括，还有页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、按渠道加参数并在实际发出的请求里看到、预览、供应商搜索和「不提供该模型」提示、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏/手机宽度布局。本文的截图就来自这套环境；里面的 OpenRouter 目录是 OpenRouter 公开的那份，没有向 OpenRouter 发过请求。
+用 `node --test` 跑 107 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、读取已配置的渠道、宿主的各个动作、页面把参数和请求对应到渠道的逻辑以及预览和概括，检查更新和升级、包里是否带上了代码引用的每个模块，还有页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、按渠道加参数并在实际发出的请求里看到、预览、供应商搜索和「不提供该模型」提示、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏/手机宽度布局。更新在 dsh 0.2.1-rc.2 上对着真实的 npm 源检查过：标成 0.0.9 的副本发现了 0.1.0，「升级…」通过 DSH 的安装器装上了它，配置随后依赖 0.1.0 的压缩包，新版本不用重启就换上了；再装一次同一个版本，会提示已经装好、重启后生效。本文的截图就来自这套环境；里面的 OpenRouter 目录是 OpenRouter 公开的那份，没有向 OpenRouter 发过请求。
 
 ## 更新记录
 
