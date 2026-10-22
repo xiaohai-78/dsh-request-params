@@ -2,39 +2,39 @@
 
 [English](README.md) | 中文
 
-**给 [dsh](https://github.com/deepseek-ai/deepseek-harness) 发出的每个模型请求，加上你自己的参数。** OpenRouter 的渠道（供应商）路由、备用模型、思考强度、采样参数、网关请求头，或者任何网关认的 JSON 字段。在页面上配置，不用改代码；发出之前先预览会改成什么样；发出之后能看到网关回了什么。
+**给 [dsh](https://github.com/deepseek-ai/deepseek-harness) 发出的每个模型请求，加上你自己的参数。** OpenRouter 的供应商路由、备用模型、思考强度、采样参数、网关请求头，或者任何网关认的 JSON 字段。选一个 dsh 里已经配好的渠道，在页面上加参数，不用改代码；发出之前就能看到每个请求会多出什么；发出之后能看到网关回了什么。
 
 <p align="center">
-  <img alt="创建一条 OpenRouter 路由规则：选供应商、按价格排序、保存，再用示例请求试运行" src="docs/demo-zh.gif" width="860">
+  <img alt="在 openrouter 渠道设置供应商路由：DeepSeek 不提供正在预览的模型，被标了出来，页面提示请求会失败；换成 DeepSeek 提供的模型后提示消失；保存后，在渠道的最近请求里看到加上的内容" src="docs/demo-zh.gif" width="860">
 </p>
 
 ## 为什么需要它
 
-dsh 只发它的模型适配器认识的字段。而 [OpenRouter](https://openrouter.ai) 这类网关能接受更多：走哪些供应商、什么顺序、备用模型、思考预算、用于缓存亲和的会话 ID。dsh 不会发 OpenRouter 的 `provider` 路由偏好。已经有插件覆盖了其中一小块（比如供应商顺序和量化精度）；这个插件是通用的：同一个页面处理任意网关的任意字段和请求头，OpenRouter 的路由选项有现成表单，还有预览和日志。
+dsh 只发它的模型适配器认识的字段。而 [OpenRouter](https://openrouter.ai) 这类网关能接受更多：走哪些供应商、什么顺序、备用模型、思考预算、用于缓存亲和的会话 ID。dsh 不会发 OpenRouter 的 `provider` 路由偏好。已经有插件覆盖了其中一小块（比如供应商顺序和量化精度）；这个插件是通用的：同一个页面处理任意网关的任意字段和请求头，OpenRouter 的路由选项有现成表单，还有实时预览和日志。
 
-一条**规则**说明它管哪些请求（主机、模型、路径），以及在请求体和请求头里加什么、替换什么、删掉什么。规则在请求离开 dsh 之前生效。
+每一项**参数**属于一个渠道（或者自己写明主机、模型和路径），说明在请求体和请求头里加什么、替换什么、删掉什么。参数在请求离开 dsh 之前生效；在规则文件里，每一项就是一条*规则*。
 
 ## 亮点
 
-- **从已有的渠道开始。** 「**已配置的渠道**」列出 dsh 里已经配好的模型渠道（官方 DeepSeek 路线，以及 `llm-pi-ai` 的每条路线），带每个渠道实际发往的地址和它的模型。点「**建规则**」新建的规则已经指向这个渠道；OpenRouter 渠道还能一键「**设置渠道路由**」。
-- **选供应商，不用手写 JSON。** OpenRouter 预设是一张表单：供应商顺序、只用/不用名单、是否允许回退、零数据留存、按价格或速度排序、价格上限、量化精度、备用模型。「**看看这个模型有哪些供应商**」会按模型 ID 列出 OpenRouter 公开目录里的全部供应商，带价格、上下文和可用率，一键加进你的名单。
-- **发出前先看会改成什么。** 「**试运行**」用示例请求跑一遍你的规则（包括还没保存的），展示请求体的差异和请求头的变化，什么都不会发出去。
-- **发出后看发生了什么。** 「**最近请求**」列出 dsh 发出的每个模型请求：规则有没有改它、设置或删除了哪些字段、HTTP 状态，网关拒绝时还有它的原话。没命中的规则也会告诉你为什么。
-- **默认安全。** 核心字段（`messages`、`tools`、`model` 等）和认证请求头（`Authorization`、`x-api-key` 等）改不了。密钥用环境变量（`{{env:名称}}`），不会显示出来。应用规则时出了问题，请求原样发出，不会失败。
+- **按渠道管理。** 页面列出 dsh 里已经配好的模型渠道（官方 DeepSeek 路线，以及 `llm-pi-ai` 的每条路线）和各自发往的地址。打开一个渠道，就能看到它的参数，点一下就能加，自动对准这个渠道。其他地址的参数放在「**其他地址**」。
+- **发出前就知道会发什么。** 「**发送时加上**」用 JSON 显示这个渠道的参数会给所选模型的请求加上什么，包括还没保存的修改。什么都不会发出去。
+- **选供应商，不用手写 JSON。** 「**供应商路由**」就是一份列表：搜索供应商（提供正在预览的模型的排在前面，带价格和可用率），排好顺序，决定能不能换用其他供应商，排除一些，排序方式，要求零数据留存，加备用模型；价格上限、量化精度、白名单、速度偏好在「**更多条件**」里。不提供该模型的供应商会被标出来；会导致 "No endpoints found" 失败的组合，保存前就会提醒。
+- **发出后看发生了什么。** 每个渠道都列出它的最近请求：状态、加上了什么，网关拒绝时还有它的原话。「**请求记录**」里是 dsh 发出的所有模型请求。
+- **默认安全。** 核心字段（`messages`、`tools`、`model` 等）和认证请求头（`Authorization`、`x-api-key` 等）改不了。密钥用环境变量（`{{env:名称}}`），不会显示出来。应用参数时出了问题，请求原样发出，不会失败。
 - **常用路线共用一个入口。** 官方 DeepSeek 接口，以及 `llm-pi-ai` 的 OpenAI 兼容和 Anthropic 兼容路线（OpenRouter、自建 vLLM、企业网关）走的是同一个 `fetch` 入口；验证过哪些，见「兼容性与限制」。
-- **日常用着顺手。** 一个开关就能暂停所有规则；没保存的修改离开页面也不丢；删除规则可以撤销；规则文件在别处被改过会被发现，而不是被覆盖；规则可以导出、导入 JSON；中英文界面，浅色深色都有。
+- **日常用着顺手。** 一个开关就能全部暂停；没保存的修改离开页面也不丢，Ctrl/⌘ + S 保存；删除可以撤销；规则文件在别处被改过会被发现，而不是被覆盖；参数可以导出、导入 JSON；中英文界面，浅色深色都有，手机宽度也能用。
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/routing-dark-zh.png">
-    <img alt="OpenRouter 渠道路由规则：供应商顺序，以及某个模型的供应商列表（价格、上下文、可用率）" src="docs/screenshots/routing-light-zh.png" width="860">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/overview-dark-zh.png">
+    <img alt="openrouter 渠道：参数会给每个请求加上的 JSON，以及两项参数（供应商路由、思考强度），各用一行概括" src="docs/screenshots/overview-light-zh.png" width="860">
   </picture>
 </p>
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/channels-dark-zh.png">
-    <img alt="已配置的渠道：dsh 里的每个渠道、它的地址和来源、模型数量，以及为它建规则的按钮" src="docs/screenshots/channels-light-zh.png" width="860">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/routing-dark-zh.png">
+    <img alt="供应商路由：供应商列表里 DeepSeek 被标为不提供正在预览的模型，搜索框列出提供该模型的供应商，带价格和可用率" src="docs/screenshots/routing-light-zh.png" width="860">
   </picture>
 </p>
 
@@ -61,51 +61,65 @@ dsh plugin --profile web add dsh-request-params
    ```
 
    然后在输入框里选一个 OpenRouter 的模型。
-2. 打开「请求参数」，在「已配置的渠道」里点 OpenRouter 渠道的「**设置渠道路由**」（或者点下面的「OpenRouter 渠道路由」，主机保留 `openrouter.ai`），在「优先顺序」里输入供应商，例如 `deepinfra`（或者展开「看看这个模型有哪些供应商」，点「加入顺序」），「排序」选「价格」，点「**保存**」。
-3. 发一条消息，打开「最近请求」，就能看到发出去的 `provider` 对象。
+2. 打开「请求参数」，选 **openrouter** 渠道。点「**供应商路由**」，输入供应商（例如 `deepseek`）按回车；如果不允许别的供应商接手，把「其他供应商」设成「**不使用**」；点「**保存**」（或 Ctrl/⌘ + S）。「**发送时加上**」会显示 `provider` 对象；在它的「模型」框里填你实际用的模型，如果有供应商被标成「不提供该模型」，换一个供应商或模型。
+3. 发一条消息，渠道的「**最近请求**」里会显示加上了什么、网关返回的状态。
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/requests-dark-zh.png">
-    <img alt="最近请求：每个请求被规则改了 9 处，其中一个请求的网关报错也显示在里面" src="docs/screenshots/requests-light-zh.png" width="860">
+    <img alt="请求记录：每个模型请求的状态、经过的渠道、加了几项；展开的一条显示生效的参数和它设置的字段" src="docs/screenshots/requests-light-zh.png" width="860">
   </picture>
 </p>
 
 ## 能加什么
 
-| 预设 | 加的内容 | 典型用途 |
+| 种类 | 加的内容 | 典型用途 |
 |---|---|---|
-| **OpenRouter 渠道路由** | `provider`（`order`、`only`、`ignore`、`allow_fallbacks`、`require_parameters`、`data_collection`、`zdr`、`quantizations`、`sort`、`max_price`、`preferred_min_throughput`、`preferred_max_latency`、`enforce_distillable_text`）和 `models` | 选供应商和顺序、限价、要求零数据留存、回退到别的模型 |
+| **供应商路由** | `provider`（`order`、`only`、`ignore`、`allow_fallbacks`、`require_parameters`、`data_collection`、`zdr`、`quantizations`、`sort`、`max_price`、`preferred_min_throughput`、`preferred_max_latency`、`enforce_distillable_text`）和 `models` | 选供应商和顺序、限价、要求零数据留存、回退到别的模型 |
 | **思考强度** | `reasoning`（`effort`、`max_tokens`、`exclude`） | 调高或调低思考，或者不在回答里返回思考内容 |
 | **采样参数** | `top_k`、`min_p`、`top_a`、`repetition_penalty` | 标准接口没有的采样项 |
 | **会话粘性** | 请求体里的 `session_id` 和请求头 `x-session-id` | 让同一场对话固定走一个供应商，更容易命中缓存 |
 | **应用署名** | `HTTP-Referer` 和 `X-OpenRouter-Title` 请求头 | 在 OpenRouter 上把流量记到你的应用名下（dsh 自己不发这些） |
 | **删除字段** | 删掉 `store` 之类的字段 | 网关不认 dsh 发的某个字段 |
-| **自定义规则** | 随便：JSON 字段、请求头、删除 | 其他任何网关 |
+| **自定义字段和请求头** | 随便：JSON 字段、请求头、删除 | 其他任何网关 |
 
-「新建规则」里还有其他网关的示例，一键创建：自建 vLLM 关闭思考（`chat_template_kwargs`）、Helicone 请求头、Cloudflare AI Gateway 缓存请求头、OpenAI 的 `prompt_cache_key`。创建出来就是一条普通的自定义规则，随便改。
+OpenRouter 渠道可以加所有种类。其他渠道只列出不限于 OpenRouter 的种类，外加其他网关的示例：自建 vLLM 关闭思考（`chat_template_kwargs`）、Helicone 请求头、Cloudflare AI Gateway 缓存请求头、OpenAI 的 `prompt_cache_key`。示例创建出来就是一项普通的自定义参数，随便改。「其他地址」里所有种类都有。
 
-## 自己写规则
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/add-dark-zh.png">
+    <img alt="一个还没有参数的渠道：适用于它的参数种类，以及常见网关的示例" src="docs/screenshots/add-light-zh.png" width="860">
+  </picture>
+</p>
 
-一条自定义规则有这些部分：
+## 自己写参数
 
-- **适用于**：*主机*（必填，如 `openrouter.ai`、`*.example.com`、`127.0.0.1:8130`），可选的*模型*（`deepseek/*`、`*-chat`），可选的*路径*（前缀）。不写路径时，规则只作用于模型接口（`…/chat/completions`、`…/messages`、`…/responses`、`…:generateContent`）；要用在别的接口，写上路径。
-- **总是设置的字段**：一个 JSON 对象，合并进请求体。对象和已有内容合并，其他类型直接替换。
-- **缺少时才设置的字段**：同上，但请求里已经有的字段不动。
-- **要删除的字段**：用点号写路径，如 `store`、`stream_options.include_usage`。先删除，再设置。
-- **请求头**：要加的（同名的会被替换）和要去掉的。
+「自定义字段和请求头」有这些部分：
 
-规则从上到下执行，靠后的能看到前面的结果。值里可以用 `{{model}}`（请求的模型）、`{{session}}`（dsh 会话 ID；有些路线 dsh 不带会话 ID，就用从对话内容算出的稳定键）、`{{env:名称}}`（环境变量；没设置时这个字段被跳过，日志里会说明）。
+- **请求体字段**：一个 JSON 对象，合并进请求体。对象和已有内容合并，其他类型直接替换。
+- **请求头**：加到请求上，同名的会被替换。
+- 「**更多**」里还有：**缺省值**（和请求体字段一样，但请求里已经有的字段不动）、**删除字段**（用点号写路径，如 `store`、`stream_options.include_usage`；先删除，再写入）、**删除请求头**、**允许改核心字段**。
+
+每项参数都有适用范围。在渠道里，「**全部模型**」按钮可以把它限定到这个渠道的部分模型（`deepseek/*`、`*-chat`），菜单里的「编辑主机和路径」显示它匹配的地址。在「其他地址」里，参数自己写明*主机*（`openrouter.ai`、`*.example.com`、`127.0.0.1:8130`）、可选的*模型*、可选的*路径*（前缀）。不写路径时只作用于模型接口（`…/chat/completions`、`…/messages`、`…/responses`、`…:generateContent`）；要用在别的接口，写上路径。
+
+同一个请求用到多项参数时，从上到下执行，靠后的能看到前面的结果。值里可以用 `{{model}}`（请求的模型）、`{{session}}`（dsh 会话 ID；有些路线 dsh 不带会话 ID，就用从对话内容算出的稳定键）、`{{env:名称}}`（环境变量；没设置时这个字段被跳过，日志里会说明）。
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/custom-dark-zh.png">
+    <img alt="企业网关渠道上的一项自定义参数：预览显示它加上的 metadata 字段和 X-Team 请求头，最近一个请求显示两者都发出去了" src="docs/screenshots/custom-light-zh.png" width="860">
+  </picture>
+</p>
 
 ## 安全与隐私
 
-- `messages`、`system`、`tools`、`tool_choice`、`input`、`instructions`、`prompt`、`contents`、`stream`、`model` 默认不能设置或删除，除非自定义规则明确允许。
+- `messages`、`system`、`tools`、`tool_choice`、`input`、`instructions`、`prompt`、`contents`、`stream`、`model` 默认不能设置或删除，除非自定义参数明确允许。
 - `Authorization`、`x-api-key`、`api-key`、`x-goog-api-key`、`Cookie`、`Host`，以及决定请求格式的请求头（`Content-Length`、`Content-Type` 等）永远不能改。
-- 有问题的规则不会生效，页面会指出哪里不对。发送请求时应用规则出了错，请求原样发出，日志里会写明。
-- 规则保存在你本机的 `<profile>/.dsh-request-params/config.json`，不会因此向任何地方发送东西。
-- 「**最近请求**」只在内存里（最近 50 个请求，重启后清空），包含模型、地址和做过的改动；请求失败时还会留下网关返回内容的前 2 KB，那里面可能引用请求内容。它不保存对话本身。来自环境变量的值显示为「不显示」；如果网关的回复里引用了它，会被替换成 `[env]`。
-- 「已配置的渠道」读取 dsh 自己的渠道列表和设置（密钥已隐去），用来显示每个渠道的地址和模型；不会改动它们，也不保存。
-- 唯一会联网的是「看看这个模型有哪些供应商」，它读取 OpenRouter 的公开目录（`/providers`、`/models`、`/models/{id}/endpoints`），不带密钥也不带内容；供应商列表在离线时用插件自带的一份。
+- 有问题的参数不会生效，页面会指出哪里不对。发送请求时应用参数出了错，请求原样发出，日志里会写明。
+- 参数保存在你本机的 `<profile>/.dsh-request-params/config.json`，不会因此向任何地方发送东西。
+- 请求记录只在内存里（最近 50 个请求，重启后清空），包含模型、地址和做过的改动；请求失败时还会留下网关返回内容的前 2 KB，那里面可能引用请求内容。它不保存对话本身。来自环境变量的值显示为「不显示」；如果网关的回复里引用了它，会被替换成 `[env]`。
+- 渠道列表来自 dsh 自己的渠道列表和设置（密钥已隐去），用来显示每个渠道的地址和模型；页面不会改动它们，也不保存。
+- 唯一会联网的是 OpenRouter 的公开目录（`/providers`、`/models`、`/models/{id}/endpoints`），只在页面上有供应商路由参数时读取：供应商列表、提供预览模型的供应商、备用模型的候选。不带密钥也不带内容；供应商列表在离线时用插件自带的一份。
 
 ## 规则文件
 
@@ -143,21 +157,22 @@ dsh plugin --profile web add dsh-request-params
 
 dsh 的模型适配器都通过全局 `fetch` 发请求，这个插件包装了一次 `fetch`。对于请求体是 JSON、看起来像模型调用（或被某条规则点名）的 POST 请求，它读出请求体，应用匹配的规则，再发出修改后的请求；其他请求原样通过。响应和流不会被读取或修改（只记录状态，请求失败时记录响应的前 2 KB 给日志用）。卸载插件或者暂停之后，一切回到 dsh 自己发的样子。
 
-## 规则好像没生效？
+## 参数好像没生效？
 
-1. 打开「最近请求」。如果请求根本不在里面，说明模型请求没有经过 `fetch`（或者重启后还没发过消息）。
-2. 展开那条请求。「没有规则命中」说明主机、模型或路径对不上：和规则的「适用于」对一对。主机不写端口就匹配任何端口；只想匹配某个端口，写成 `127.0.0.1:8130`。
-3. 「命中，无需修改」说明请求里本来就有那些值。
-4. 提示规则「有问题」或「用到没设置的环境变量」的，按提示改。
-5. 网关返回 4xx 时展开请求：加了哪些字段、网关原话是什么，都列在里面。点「暂停全部规则」可以确认是不是它们引起的。
+1. 打开那个渠道。「发送时加上」显示参数会给「模型」框里的模型加上什么。如果它说没有参数作用于这个模型，检查参数的模型范围（「全部模型」按钮）。
+2. 看渠道的「最近请求」，或者「请求记录」。如果请求根本不在里面，说明模型请求没有经过 `fetch`（或者重启后还没发过消息）。
+3. 展开那条请求。「没有参数」说明主机、模型或路径和所有参数都对不上。主机不写端口就匹配任何端口；只想匹配某个端口，写成 `127.0.0.1:8130`。
+4. 「无需修改」说明请求里本来就有那些值。
+5. 提示参数「有问题」或「用到没设置的环境变量」的，按提示改。
+6. 网关返回 4xx 时展开请求：加了哪些字段、网关原话是什么，都列在里面。点「暂停全部参数」可以确认是不是它们引起的。OpenRouter 返回 "No endpoints found"，通常是你允许的供应商都不提供那个模型；路由表单会按预览的模型把它们标出来。
 
 ## 兼容性与限制
 
 - 需要带 Web 界面的 dsh，Node `^22.19.0 || >=24`。在 dsh 0.2.1-rc.2 上测试过。
 - 在真实的 dsh 上验证过三条路线：官方 DeepSeek 接口（`/v1/messages`）、`llm-pi-ai` 的 OpenAI 兼容路线（`/chat/completions`）、`llm-pi-ai` 的 Anthropic 兼容路线（`/v1/messages`）。
-- 只作用于通过全局 `fetch` 发出的请求。如果某个供应商提前捕获了自己的 `fetch`，就看不到；「最近请求」显示的就是插件看到的。
+- 只作用于通过全局 `fetch` 发出的请求。如果某个供应商提前捕获了自己的 `fetch`，就看不到；请求记录显示的就是插件看到的。
 - 网关可能忽略或拒绝它不认识的字段。OpenRouter 会忽略不支持的参数，除非打开 `require_parameters`。
-- 上限：100 条规则；每条规则里「总是设置」和「缺少时才设置」各 64 KB JSON，请求头 40 个。
+- 上限：100 项参数；每项参数的请求体字段和缺省值各 64 KB JSON，请求头 40 个。
 
 ## 卸载
 
@@ -165,20 +180,20 @@ dsh 的模型适配器都通过全局 `fetch` 发请求，这个插件包装了�
 dsh plugin --profile web remove dsh-request-params
 ```
 
-请求回到 dsh 自己发的样子。规则仍留在 `<profile>/.dsh-request-params/config.json`，重新安装会带回来；想清理就删掉那个文件夹。
+请求回到 dsh 自己发的样子。参数仍留在 `<profile>/.dsh-request-params/config.json`，重新安装会带回来；想清理就删掉那个文件夹。
 
 ## 开发
 
 | 文件 | 作用 |
 |---|---|
-| `index.js` | 宿主插件：包装 `fetch`，提供 `POST /api/dsh-request-params`（`get`、`save`、`check`、`dryRun`、`preset`、`recent`、`clearRecent`、`resetDamaged`、`orProviders`、`orModels`、`orEndpoints`），规则文件变化时重新加载 |
+| `index.js` | 宿主插件：包装 `fetch`，提供 `POST /api/dsh-request-params`（`get`、`save`、`check`、`dryRun`、`preset`、`recent`、`clearRecent`、`resetDamaged`、`channels`、`orProviders`、`orModels`、`orEndpoints`），规则文件变化时重新加载 |
 | `rules.js` | 规则引擎：校验、主机/模型/路径匹配、模板、把规则应用到请求体和请求头 |
 | `interceptor.js` | `fetch` 包装和请求日志 |
 | `presets.js` | 预设表单，以及它们生成的规则 |
 | `config-store.js` | 规则文件：原子写入、版本检查 |
 | `channels.js` | 从 dsh 的 `llm` 和 `settings` 服务读取已配置的渠道，算出每个渠道的地址 |
 | `openrouter.js` | OpenRouter 目录客户端，带缓存和离线兜底；`openrouter-providers.json` 是自带的供应商列表 |
-| `client.js` | 网页（中英文） |
+| `client.js` | 网页（中英文）：渠道列表、预览、参数卡片、请求记录、试运行 |
 | `test/` | `node --test` 测试；`test/fixtures/` 里是裁剪过的 OpenRouter 目录返回 |
 
 ### 验证
@@ -187,7 +202,7 @@ dsh plugin --profile web remove dsh-request-params
 npm test
 ```
 
-用 `node --test` 跑 80 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、读取已配置的渠道、宿主的各个动作，以及页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏布局。本文的截图就来自这套环境，用本地模拟服务代替 OpenRouter。
+用 `node --test` 跑 85 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、读取已配置的渠道、宿主的各个动作、页面把参数和请求对应到渠道的逻辑以及预览和概括，还有页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、按渠道加参数并在实际发出的请求里看到、预览、供应商搜索和「不提供该模型」提示、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏/手机宽度布局。本文的截图就来自这套环境；里面的 OpenRouter 目录是 OpenRouter 公开的那份，没有向 OpenRouter 发过请求。
 
 ## 更新记录
 

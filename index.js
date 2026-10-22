@@ -45,12 +45,15 @@ const message = error => (error instanceof Error ? error.message : String(error)
 
 /**
  * Normalize a configuration and drop the preset of any rule that no longer equals what its preset form builds, so the
- * page opens only forms that still describe the rule.
+ * page opens only forms that still describe the rule; a kept form is stored with every field in its type.
  */
 function settledConfig(raw) {
   const config = normalizeConfig(raw)
   for (const rule of config.rules) {
-    if (rule.preset !== undefined && formOfRule(rule) === undefined) delete rule.preset
+    if (rule.preset === undefined) continue
+    const form = formOfRule(rule)
+    if (form === undefined) delete rule.preset
+    else rule.preset.form = form
   }
   return config
 }

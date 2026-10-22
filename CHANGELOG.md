@@ -2,9 +2,15 @@
 
 ## 0.2.0 (2026-10-22)
 
-- **Configured channels**: the Rules tab lists the model channels dsh already has (the official DeepSeek route and the `llm-pi-ai` routes) with the endpoint each one sends to, where that endpoint came from (channel settings, the catalog default, `$DEEPSEEK_BASE_URL`, or requests seen), and its models.
-- **Make a rule** for a channel starts a rule that already matches it: its host, plus its base path when another channel shares the host, and its models when another shares the whole base URL. An OpenRouter channel gets **Set up routing** in one click.
-- The rule editor can add a configured channel to **Applies to**, suggests that channel's models, and a rule row shows the channel's name instead of its host.
+The page is organized by channel.
+
+- **Channels first**: the page lists the model channels dsh already has (the official DeepSeek route and the `llm-pi-ai` routes) with the address each one sends to, taken from the channel settings, the catalog default, `$DEEPSEEK_BASE_URL`, or the requests seen. A channel's page shows its parameters, adds new ones already matched to it (its host, plus its base path when another channel shares the host, and its models when another shares the whole base URL), and lists its recent requests. Parameters for other addresses are under **Other addresses** and keep their own hosts, paths, and models.
+- **Added when sending**: a live preview of what the channel's parameters, saved or not, add to a request for a chosen model, as JSON and header changes. It uses the host's dry run; nothing is sent.
+- **Provider routing** is one provider list: search providers (the ones serving the previewed model first, with price and uptime), order them, choose whether other providers may be used, and exclude some; rarer conditions are under **More conditions**. A provider that does not serve the previewed model is flagged, and a list that would fail with "No endpoints found" is called out before saving.
+- Each parameter is a card with a one-line summary, a model scope, an on/off switch, and a menu: rename, edit hosts and paths, note, duplicate, move, edit as JSON, delete. Deleting no longer asks first; it can be undone.
+- The kinds offered follow the channel: OpenRouter-only kinds appear for OpenRouter channels and under **Other addresses**.
+- Import, export, help, and refresh are in the header menu; the save bar and messages float at the bottom of the page.
+- A stored preset form is normalized when the rules are read, so a hand-edited form with missing fields still opens.
 
 ## 0.1.0 (2026-10-22)
 

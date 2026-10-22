@@ -218,6 +218,7 @@ test('drops the preset of a rule that was edited away from what its form builds'
   try {
     const state = (await host.call({ action: 'get' })).value
     assert.deepEqual(state.rules.map(item => item.preset?.id), ['reasoning', undefined])
+    assert.deepEqual(state.rules[0].preset.form, { effort: 'high', maxTokens: null, exclude: false }, 'a kept form comes back with every field, so the page can open it')
     const checked = (await host.call({ action: 'check', config: { rules: [edited] } })).value
     assert.equal(checked.config.rules[0].preset, undefined)
   } finally {
