@@ -9,7 +9,7 @@ import { normalizeRule } from '../rules.js'
 const rule = fields => normalizeRule({ id: 'r1', name: 'routing', match: { hosts: ['gateway.example'] }, ...fields })
 
 /** Mount the host plugin on a fake context; the fake `fetch` stands in for the network. */
-async function mount({ initial, respond = () => new Response('{}', { status: 200 }) } = {}) {
+async function mount({ initial, respond = () => new Response('{}', { status: 200 }), services = {} } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'dsh-request-params-host-'))
   const configDir = join(dir, '.dsh-request-params')
   if (initial !== undefined) {
@@ -25,6 +25,7 @@ async function mount({ initial, respond = () => new Response('{}', { status: 200
   globalThis.fetch = async (input, init) => { sent.push({ input, init }); return respond(input, init) }
   const ctx = {
     configEditor: { documentPath: join(dir, 'cordis.patch.yml') },
+    get: name => services[name],
     effect: (setup, label) => { effects.push({ dispose: setup(), label }) },
     inject: (_names, callback) => callback({ effect: setup => { effects.push({ dispose: setup() }) }, connection: { fetch: { register: (route) => { routes.push(route); return () => {} } } } }),
     logger: { warn: text => warnings.push(text) },
@@ -219,6 +220,39 @@ test('drops the preset of a rule that was edited away from what its form builds'
     assert.deepEqual(state.rules.map(item => item.preset?.id), ['reasoning', undefined])
     const checked = (await host.call({ action: 'check', config: { rules: [edited] } })).value
     assert.equal(checked.config.rules[0].preset, undefined)
+  } finally {
+    await host.stop()
+  }
+})
+
+test('lists the configured channels, with endpoints from settings and from requests seen', async () => {
+  const llm = {
+    listProviders: () => [{ id: 'openrouter', name: 'OpenRouter' }, { id: 'gw', name: 'Gateway' }],
+    listConfigurableProviders: () => [
+      { provider: 'openrouter', displayName: 'openrouter', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openrouter'], defaultBaseURL: 'https://openrouter.ai/api/v1' },
+      { provider: 'gw', displayName: 'Gateway', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'gw'] },
+    ],
+    listModels: async id => (id === 'gw' ? [{ provider: 'gw', id: 'm', name: 'M' }] : []),
+  }
+  const settings = { describe: () => [{ ns: 'llm-pi-ai', value: { providers: { gw: { baseURL: 'https://gateway.example/v1' } } } }] }
+  const host = await mount({ services: { llm, settings } })
+  try {
+    await host.send({ model: 'm', messages: [] })
+    const { value } = await host.call({ action: 'channels' })
+    assert.equal(value.available, true)
+    assert.deepEqual(value.channels.map(channel => [channel.id, channel.host, channel.source, channel.seen, channel.openrouter]), [
+      ['openrouter', 'openrouter.ai', 'default', false, true],
+      ['gw', 'gateway.example', 'settings', true, false],
+    ])
+  } finally {
+    await host.stop()
+  }
+})
+
+test('says there are no channels to list when dsh has no llm service', async () => {
+  const host = await mount()
+  try {
+    assert.deepEqual((await host.call({ action: 'channels' })).value, { available: false, channels: [] })
   } finally {
     await host.stop()
   }

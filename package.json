@@ -1,7 +1,7 @@
 {
   "name": "dsh-request-params",
-  "version": "0.1.0",
-  "description": "Add your own parameters to the model requests dsh sends: OpenRouter provider routing and fallback models, reasoning, sampling and custom body fields, and headers, for OpenRouter or any other gateway. Rules match by host, model, and path; a dry run previews the change and a request log shows what was sent and what the gateway answered.",
+  "version": "0.2.0",
+  "description": "Add your own parameters to the model requests dsh sends: OpenRouter provider routing and fallback models, reasoning, sampling and custom body fields, and headers, for OpenRouter or any other gateway. Rules start from the channels dsh already has and match by host, model, and path; a dry run previews the change and a request log shows what was sent and what the gateway answered.",
   "keywords": [
     "deepseek-harness",
     "dsh",
@@ -50,6 +50,7 @@
     "presets.js",
     "openrouter.js",
     "openrouter-providers.json",
+    "channels.js",
     "config-store.js",
     "fs-retry.js",
     "client.js",

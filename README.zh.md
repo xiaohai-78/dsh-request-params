@@ -16,6 +16,7 @@ dsh 只发它的模型适配器认识的字段。而 [OpenRouter](https://openro
 
 ## 亮点
 
+- **从已有的渠道开始。** 「**已配置的渠道**」列出 dsh 里已经配好的模型渠道（官方 DeepSeek 路线，以及 `llm-pi-ai` 的每条路线），带每个渠道实际发往的地址和它的模型。点「**建规则**」新建的规则已经指向这个渠道；OpenRouter 渠道还能一键「**设置渠道路由**」。
 - **选供应商，不用手写 JSON。** OpenRouter 预设是一张表单：供应商顺序、只用/不用名单、是否允许回退、零数据留存、按价格或速度排序、价格上限、量化精度、备用模型。「**看看这个模型有哪些供应商**」会按模型 ID 列出 OpenRouter 公开目录里的全部供应商，带价格、上下文和可用率，一键加进你的名单。
 - **发出前先看会改成什么。** 「**试运行**」用示例请求跑一遍你的规则（包括还没保存的），展示请求体的差异和请求头的变化，什么都不会发出去。
 - **发出后看发生了什么。** 「**最近请求**」列出 dsh 发出的每个模型请求：规则有没有改它、设置或删除了哪些字段、HTTP 状态，网关拒绝时还有它的原话。没命中的规则也会告诉你为什么。
@@ -27,6 +28,13 @@ dsh 只发它的模型适配器认识的字段。而 [OpenRouter](https://openro
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/routing-dark-zh.png">
     <img alt="OpenRouter 渠道路由规则：供应商顺序，以及某个模型的供应商列表（价格、上下文、可用率）" src="docs/screenshots/routing-light-zh.png" width="860">
+  </picture>
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/channels-dark-zh.png">
+    <img alt="已配置的渠道：dsh 里的每个渠道、它的地址和来源、模型数量，以及为它建规则的按钮" src="docs/screenshots/channels-light-zh.png" width="860">
   </picture>
 </p>
 
@@ -53,7 +61,7 @@ dsh plugin --profile web add dsh-request-params
    ```
 
    然后在输入框里选一个 OpenRouter 的模型。
-2. 打开「请求参数」，点「**OpenRouter 渠道路由**」，在「优先顺序」里输入供应商，例如 `deepinfra`（或者展开「看看这个模型有哪些供应商」，点「加入顺序」），「排序」选「价格」，点「**保存**」。
+2. 打开「请求参数」，在「已配置的渠道」里点 OpenRouter 渠道的「**设置渠道路由**」（或者点下面的「OpenRouter 渠道路由」，主机保留 `openrouter.ai`），在「优先顺序」里输入供应商，例如 `deepinfra`（或者展开「看看这个模型有哪些供应商」，点「加入顺序」），「排序」选「价格」，点「**保存**」。
 3. 发一条消息，打开「最近请求」，就能看到发出去的 `provider` 对象。
 
 <p align="center">
@@ -96,6 +104,7 @@ dsh plugin --profile web add dsh-request-params
 - 有问题的规则不会生效，页面会指出哪里不对。发送请求时应用规则出了错，请求原样发出，日志里会写明。
 - 规则保存在你本机的 `<profile>/.dsh-request-params/config.json`，不会因此向任何地方发送东西。
 - 「**最近请求**」只在内存里（最近 50 个请求，重启后清空），包含模型、地址和做过的改动；请求失败时还会留下网关返回内容的前 2 KB，那里面可能引用请求内容。它不保存对话本身。来自环境变量的值显示为「不显示」；如果网关的回复里引用了它，会被替换成 `[env]`。
+- 「已配置的渠道」读取 dsh 自己的渠道列表和设置（密钥已隐去），用来显示每个渠道的地址和模型；不会改动它们，也不保存。
 - 唯一会联网的是「看看这个模型有哪些供应商」，它读取 OpenRouter 的公开目录（`/providers`、`/models`、`/models/{id}/endpoints`），不带密钥也不带内容；供应商列表在离线时用插件自带的一份。
 
 ## 规则文件
@@ -167,6 +176,7 @@ dsh plugin --profile web remove dsh-request-params
 | `interceptor.js` | `fetch` 包装和请求日志 |
 | `presets.js` | 预设表单，以及它们生成的规则 |
 | `config-store.js` | 规则文件：原子写入、版本检查 |
+| `channels.js` | 从 dsh 的 `llm` 和 `settings` 服务读取已配置的渠道，算出每个渠道的地址 |
 | `openrouter.js` | OpenRouter 目录客户端，带缓存和离线兜底；`openrouter-providers.json` 是自带的供应商列表 |
 | `client.js` | 网页（中英文） |
 | `test/` | `node --test` 测试；`test/fixtures/` 里是裁剪过的 OpenRouter 目录返回 |
@@ -177,7 +187,7 @@ dsh plugin --profile web remove dsh-request-params
 npm test
 ```
 
-用 `node --test` 跑 72 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、宿主的各个动作，以及页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏布局。本文的截图就来自这套环境，用本地模拟服务代替 OpenRouter。
+用 `node --test` 跑 80 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、读取已配置的渠道、宿主的各个动作，以及页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏布局。本文的截图就来自这套环境，用本地模拟服务代替 OpenRouter。
 
 ## 更新记录
 

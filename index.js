@@ -6,13 +6,15 @@
  * them before the first request, and reloads them when the file changes on disk (another dsh process or a hand edit).
  * The interceptor (interceptor.js) applies them to every model request this process sends and keeps a short log; the
  * page reads the log, previews rules against a sample request (`dryRun`), and reads OpenRouter's public provider and
- * model catalog (openrouter.js) to fill the routing form.
+ * model catalog (openrouter.js) to fill the routing form. `channels` lists the model channels dsh has configured, so a
+ * rule can start from one (channels.js).
  *
  * Nothing leaves the machine except those catalog reads, which carry no rules, keys, or conversation text.
  */
 import { readFileSync } from 'node:fs'
 import { rename, stat } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
+import { collectChannels } from './channels.js'
 import { ConfigFileError, ConfigStore, ConflictError } from './config-store.js'
 import { createInterceptor } from './interceptor.js'
 import { CatalogError, createCatalog } from './openrouter.js'
@@ -234,6 +236,11 @@ const ACTIONS = {
     // `secrets` lists the values the rules took from the environment; here they are placeholders, but they are never sent to the page.
     const { secrets: _secrets, ...shown } = result
     return { ...shown, modelEndpoint, paused: !config.enabled, invalid: invalidTargets({ rules }, target, model) }
+  },
+
+  /** The model channels dsh has configured, with their endpoints and models (channels.js). */
+  async channels(m) {
+    return collectChannels(m.ctx, m.interceptor.endpoints(), process.env)
   },
 
   async orProviders(m, body) {

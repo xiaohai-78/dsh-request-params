@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 (2026-10-22)
+
+- **Configured channels**: the Rules tab lists the model channels dsh already has (the official DeepSeek route and the `llm-pi-ai` routes) with the endpoint each one sends to, where that endpoint came from (channel settings, the catalog default, `$DEEPSEEK_BASE_URL`, or requests seen), and its models.
+- **Make a rule** for a channel starts a rule that already matches it: its host, plus its base path when another channel shares the host, and its models when another shares the whole base URL. An OpenRouter channel gets **Set up routing** in one click.
+- The rule editor can add a configured channel to **Applies to**, suggests that channel's models, and a rule row shows the channel's name instead of its host.
+
 ## 0.1.0 (2026-10-22)
 
 First release.

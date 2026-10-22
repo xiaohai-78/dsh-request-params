@@ -16,6 +16,7 @@ A *rule* says which requests it is for (host, model, path) and what to add, repl
 
 ## Highlights
 
+- **Start from the channels you already have.** **Configured channels** lists the model channels dsh is set up with (the official DeepSeek route and every `llm-pi-ai` route), with the endpoint each one sends to and its models. **Make a rule** starts a rule that already points at that channel; an OpenRouter channel gets **Set up routing** in one click.
 - **Pick providers, do not hand-write JSON.** The OpenRouter preset is a form: provider order, only/never lists, fallbacks on or off, zero data retention, sort by price or speed, price caps, quantization, fallback models. **See which providers serve a model** lists every provider for a model ID with price, context, and uptime from OpenRouter's public catalog, and adds one to your lists with a click.
 - **See the change before you send it.** **Try it** runs your rules (even unsaved ones) on a sample request and shows a diff of the body and the header changes. Nothing is sent.
 - **See what happened after.** **Recent requests** shows each model request dsh sent: whether a rule changed it, every field it set or removed, the HTTP status, and, when the gateway refused, what it said. A rule that did not match says so, and why.
@@ -27,6 +28,13 @@ A *rule* says which requests it is for (host, model, path) and what to add, repl
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/routing-dark.png">
     <img alt="The OpenRouter provider routing rule: provider order, and a table of the providers that serve a model with price and uptime" src="docs/screenshots/routing-light.png" width="860">
+  </picture>
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/channels-dark.png">
+    <img alt="Configured channels: each channel dsh has, with its endpoint, where the endpoint came from, its models, and a button to make a rule for it" src="docs/screenshots/channels-light.png" width="860">
   </picture>
 </p>
 
@@ -53,7 +61,7 @@ To try a checkout, use `link:/path/to/dsh-request-params` instead of the name.
    ```
 
    Pick an OpenRouter model in the composer.
-2. Open **Request Params**, click **OpenRouter provider routing**, type a provider such as `deepinfra` under **Provider order** (or open **See which providers serve a model** and press **Add to order**), choose **Price** under **Sort by**, and press **Save**.
+2. Open **Request Params**. Under **Configured channels**, press **Set up routing** on the OpenRouter channel (or click **OpenRouter provider routing** below and keep `openrouter.ai` as the host), type a provider such as `deepinfra` under **Provider order** (or open **See which providers serve a model** and press **Add to order**), choose **Price** under **Sort by**, and press **Save**.
 3. Send a message. Open **Recent requests** to see the `provider` object that went out.
 
 <p align="center">
@@ -96,6 +104,7 @@ Rules run from top to bottom, and a later rule sees the result of the earlier on
 - A rule with a problem is not applied, and the page shows what is wrong. If applying rules fails while a request is being sent, the request goes out unchanged and the log says so.
 - Rules are stored on your machine in `<profile>/.dsh-request-params/config.json`. Nothing is sent anywhere because of them.
 - **Recent requests** lives in memory only (the last 50 requests; cleared on restart). It holds the model, the address, and the changes made; for a failed request it also keeps the first 2 KB of the gateway's answer, which can quote the request. It never holds the conversation itself. Values from environment variables appear as "not shown", and are replaced with `[env]` if the gateway's answer quotes them.
+- **Configured channels** reads dsh's own channel list and settings (with secrets redacted) to show each channel's endpoint and models; it changes nothing there and stores nothing.
 - The only network access is **See which providers serve a model**, which reads OpenRouter's public catalog (`/providers`, `/models`, `/models/{id}/endpoints`). It sends no key and no content, and the provider list also works offline from a built-in copy.
 
 ## The rules file
@@ -167,6 +176,7 @@ Requests go back to what dsh sends by itself. The rules stay in `<profile>/.dsh-
 | `interceptor.js` | The `fetch` wrapper and the request log |
 | `presets.js` | Preset forms and the rules they build |
 | `config-store.js` | Rules file with atomic writes and revision checks |
+| `channels.js` | Reads the configured channels from dsh's `llm` and `settings` services and works out each one's endpoint |
 | `openrouter.js` | OpenRouter catalog client with cache and offline fallback; `openrouter-providers.json` is the built-in provider list |
 | `client.js` | The web page (English and Chinese) |
 | `test/` | `node --test` suites; `test/fixtures/` holds trimmed OpenRouter catalog answers |
@@ -177,7 +187,7 @@ Requests go back to what dsh sends by itself. The rules stay in `<profile>/.dsh-
 npm test
 ```
 
-runs 72 tests with `node --test`: the rule engine, the `fetch` wrapper (chain safety, bodies as strings, bytes, or `Request`, error capture), presets, the rules file, the catalog client, the host actions, and that both languages of the page have the same text. The page and the hook were also run end to end against real dsh processes with a local mock model server: all three routes above, saving, pausing, undo, import and export, a rules file changed elsewhere, and light, dark, and narrow layouts. Screenshots in this README come from that setup, with a local mock standing in for OpenRouter.
+runs 80 tests with `node --test`: the rule engine, the `fetch` wrapper (chain safety, bodies as strings, bytes, or `Request`, error capture), presets, the rules file, the catalog client, reading the configured channels, the host actions, and that both languages of the page have the same text. The page and the hook were also run end to end against real dsh processes with a local mock model server: all three routes above, saving, pausing, undo, import and export, a rules file changed elsewhere, and light, dark, and narrow layouts. Screenshots in this README come from that setup, with a local mock standing in for OpenRouter.
 
 ## Changes
 

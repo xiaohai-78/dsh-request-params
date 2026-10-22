@@ -90,6 +90,30 @@ window.__ModuleLoader__.load({
       'empty.title': '还没有规则',
       'empty.body': '挑一个开始。规则只会给发往模型的请求加字段和请求头，不会读取或保存你的对话内容。',
       'gallery.title': '新建规则',
+      'channels.title': '已配置的渠道',
+      'channels.titleCount': '已配置的渠道 · {n}',
+      'channels.hint': 'dsh 里已经配好的模型渠道，点一下就能为它建规则，不用再填主机',
+      'channels.loading': '正在读取已配置的渠道…',
+      'channels.failed': '读取已配置的渠道失败：{reason}',
+      'channels.unavailable': '这个 dsh 没有提供渠道列表，可以在「最近请求」里从见过的接口建规则',
+      'channels.none': '还没有配置模型渠道',
+      'channels.noHost': '不知道这个渠道发往哪个地址，先用它发一条消息',
+      'channels.models': '{n} 个模型',
+      'channels.models.one': '1 个模型',
+      'channels.rules': '已有 {n} 条规则',
+      'channels.rules.one': '已有 1 条规则',
+      'channels.make': '建规则',
+      'channels.more': '其他参数',
+      'channels.routing': '设置渠道路由',
+      'channels.seen': '已见过请求',
+      'channels.source.settings': '来自渠道设置',
+      'channels.source.default': '默认地址',
+      'channels.source.environment': '来自环境变量',
+      'channels.source.seen': '从请求得知',
+      'channels.source.unknown': '地址未知',
+      'channels.modelsError': '模型列表没读到：{reason}',
+      'gallery.forChannel': '为「{name}」建规则：只作用于 {where}',
+      'match.fromChannel': '从已配置的渠道添加…',
       'gallery.popular': '常用',
       'gallery.recipes': '其他网关的示例（创建后可以随便改）',
       'recipe.vllm-thinking.name': 'vLLM / Qwen3：关闭思考',
@@ -432,6 +456,30 @@ window.__ModuleLoader__.load({
       'empty.title': 'No rules yet',
       'empty.body': 'Pick one to start. Rules only add fields and headers to requests sent to a model; they never read or store your conversation.',
       'gallery.title': 'New rule',
+      'channels.title': 'Configured channels',
+      'channels.titleCount': 'Configured channels · {n}',
+      'channels.hint': 'The model channels dsh already has. Make a rule for one without typing its host',
+      'channels.loading': 'Reading the configured channels…',
+      'channels.failed': 'Could not read the configured channels: {reason}',
+      'channels.unavailable': 'This dsh does not list its channels here; make a rule from an endpoint under Recent requests',
+      'channels.none': 'No model channel is configured yet',
+      'channels.noHost': 'Endpoint unknown; send a message through this channel first',
+      'channels.models': '{n} models',
+      'channels.models.one': '1 model',
+      'channels.rules': '{n} rules',
+      'channels.rules.one': '1 rule',
+      'channels.make': 'Make a rule',
+      'channels.more': 'Other parameters',
+      'channels.routing': 'Set up routing',
+      'channels.seen': 'requests seen',
+      'channels.source.settings': 'from channel settings',
+      'channels.source.default': 'default endpoint',
+      'channels.source.environment': 'from the environment',
+      'channels.source.seen': 'from requests',
+      'channels.source.unknown': 'endpoint unknown',
+      'channels.modelsError': 'Could not list the models: {reason}',
+      'gallery.forChannel': 'Rule for "{name}": applies to {where} only',
+      'match.fromChannel': 'Add from a configured channel…',
       'gallery.popular': 'Popular',
       'gallery.recipes': 'Examples for other gateways (edit freely after creating)',
       'recipe.vllm-thinking.name': 'vLLM / Qwen3: turn thinking off',
@@ -827,6 +875,17 @@ window.__ModuleLoader__.load({
 .rp-empty { display: flex; flex-direction: column; gap: 6px; align-items: center; padding: 28px 12px; text-align: center; border: 1px dashed var(--dsw-alias-border-l3); border-radius: var(--rp-r-md); }
 .rp-emptytitle { font-size: 15px; font-weight: 500; }
 .rp-endpoints { display: flex; flex-direction: column; gap: 6px; }
+.rp-channelsbox { padding: 10px 12px; border-radius: var(--rp-r-md); border: .5px solid var(--dsw-alias-border-l3); }
+.rp-grouphead { display: inline-flex; gap: 8px; align-items: center; padding: 2px 0; font: inherit; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; }
+.rp-grouphead[aria-expanded="true"] .rp-caret { transform: rotate(90deg); }
+.rp-channels { display: flex; flex-direction: column; gap: 6px; }
+.rp-channel { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--rp-r-sm); background: var(--rp-tint); }
+.rp-channelmain { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.rp-channeltitle { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.rp-channelname { font-weight: 500; }
+.rp-channeltitle code, .rp-channelurl { font-family: var(--rp-mono); font-size: 12px; overflow-wrap: anywhere; }
+.rp-channelmeta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rp-select { flex: none; width: auto; max-width: 100%; margin-top: 6px; }
 .rp-endpoint { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--rp-r-sm); border: .5px solid var(--dsw-alias-border-l3); }
 .rp-endpointmain { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .rp-endpointurl { font-family: var(--rp-mono); font-size: 12px; overflow-wrap: anywhere; }
@@ -848,7 +907,7 @@ window.__ModuleLoader__.load({
 @keyframes rp-pulse { from { opacity: .45 } to { opacity: .9 } }
 @media (prefers-reduced-motion: reduce) { .rp-skeleton span { animation: none; } .rp-caret, .rp-switch, .rp-switch::after { transition: none; } }
 @media (hover: hover) { .rp-head:hover, .rp-btn:hover:not(:disabled), .rp-seg button:hover, .rp-iconbtn:hover:not(:disabled), .rp-card:hover, .rp-toggle:hover, .rp-chipx:hover { background: var(--dsw-alias-interactive-bg-hover-accent, var(--rp-tint)); } .rp-primary:hover:not(:disabled) { background: var(--dsw-alias-button-primary-hover, var(--dsw-alias-button-primary-fill)); } .rp-link:hover { text-decoration: underline; } }
-@container (max-width: 600px) { .rp-narrow-hide { display: none; } .rp-name { max-width: none; flex: 1 1 auto; } .rp-formgrid { gap: 12px; } .rp-headerrow { flex-wrap: wrap; } .rp-headerrow .rp-input:first-child { flex: 1 1 100%; } }
+@container (max-width: 600px) { .rp-channel { flex-wrap: wrap; } .rp-narrow-hide { display: none; } .rp-name { max-width: none; flex: 1 1 auto; } .rp-formgrid { gap: 12px; } .rp-headerrow { flex-wrap: wrap; } .rp-headerrow .rp-input:first-child { flex: 1 1 100%; } }
 @media (max-width: 640px) { .rp-inner { padding: 20px 16px 32px; } .rp-savebar { padding: 10px 16px 14px; } }
 `
 
@@ -1240,7 +1299,7 @@ window.__ModuleLoader__.load({
       return h('div', { className: 'rp-formgrid' },
         h('datalist', { id: 'rp-providers' }, (providers?.providers ?? []).map(item => h('option', { key: item.slug, value: item.slug }, item.name))),
         providers?.source === 'bundled' ? h('div', { className: 'rp-hint is-warn' }, t('route.bundled', { date: providers.asOf })) : null,
-        rule.match.hosts.some(host => host.endsWith('openrouter.ai')) && !ui.endpoints.some(endpoint => endpoint.host.endsWith('openrouter.ai')) ? h('div', { className: 'rp-hint' }, t('route.noTraffic')) : null,
+        rule.match.hosts.some(host => host.endsWith('openrouter.ai')) && !ui.endpoints.some(endpoint => endpoint.host.endsWith('openrouter.ai')) && !ui.channels.some(channel => channel.openrouter) ? h('div', { className: 'rp-hint' }, t('route.noTraffic')) : null,
         h(Field, { label: t('route.order'), hint: t('route.orderHint'), htmlFor: 'rp-order', wide: true },
           h(OrderList, { ui, id: 'rp-order', label: t('route.order'), value: form.order, onChange: order => set({ order }), placeholder: t('route.providerPlaceholder'), listId: 'rp-providers', names })),
         h(Field, { label: t('route.only'), hint: t('route.onlyHint'), htmlFor: 'rp-only', wide: true },
@@ -1356,8 +1415,19 @@ window.__ModuleLoader__.load({
       const { t } = ui
       const Form = rule.preset === undefined ? undefined : FORMS[rule.preset.id]
       const edit = change => ui.updateRule(rule.id, (current) => { change(current); return current })
-      const hostSuggestions = [...new Set(['openrouter.ai', ...ui.endpoints.map(endpoint => endpoint.host)])]
-      const modelSuggestions = [...new Set(ui.endpoints.flatMap(endpoint => endpoint.models))]
+      const hostSuggestions = [...new Set([...ui.channels.filter(channel => channel.host !== undefined).map(channel => channel.host), 'openrouter.ai', ...ui.endpoints.map(endpoint => endpoint.host)])]
+      const ruleChannels = ui.channels.filter(channel => rule.match.hosts.includes(channel.host))
+      const modelSuggestions = [...new Set([...(ruleChannels.length > 0 ? ruleChannels : ui.channels).flatMap(channel => channel.models.map(model => model.id)), ...ui.endpoints.flatMap(endpoint => endpoint.models)])]
+      const usable = ui.channels.filter(channel => channel.host !== undefined)
+      const addChannel = (id) => {
+        const channel = usable.find(item => item.id === id)
+        if (channel === undefined) return
+        const wanted = matchOfChannel(channel)
+        edit((r) => {
+          for (const host of wanted.hosts) if (!r.match.hosts.includes(host)) r.match.hosts.push(host)
+          for (const path of wanted.paths) if (!r.match.paths.includes(path)) r.match.paths.push(path)
+        })
+      }
       const idp = suffix => `rp-${rule.id}-${suffix}`
       const [confirmDelete, setConfirmDelete] = React.useState(false)
       return h('div', { className: 'rp-body' },
@@ -1372,7 +1442,10 @@ window.__ModuleLoader__.load({
           h('div', { className: 'rp-sectiontitle' }, t('match.title')),
           h('div', { className: 'rp-formgrid' },
             h(Field, { label: t('match.hosts'), hint: t('match.hostsHint'), htmlFor: idp('hosts-input'), wide: true },
-              h(ChipsInput, { ui, id: idp('hosts-input'), label: t('match.hosts'), value: rule.match.hosts, listId: idp('hosts'), placeholder: 'openrouter.ai', onChange: hosts => edit((r) => { r.match.hosts = hosts }) })),
+              h(ChipsInput, { ui, id: idp('hosts-input'), label: t('match.hosts'), value: rule.match.hosts, listId: idp('hosts'), placeholder: 'openrouter.ai', onChange: hosts => edit((r) => { r.match.hosts = hosts }) }),
+              usable.length === 0 ? null : h('select', { className: 'rp-input rp-select', value: '', 'aria-label': t('match.fromChannel'), onChange: event => addChannel(event.target.value) },
+                h('option', { value: '' }, t('match.fromChannel')),
+                usable.map(channel => h('option', { key: channel.id, value: channel.id }, `${channel.name} · ${channel.host}${channel.sharedHost ? channel.basePath : ''}`)))),
             h(Field, { label: t('match.models'), hint: t('match.modelsHint'), htmlFor: idp('models-input'), wide: true },
               h(ChipsInput, { ui, id: idp('models-input'), label: t('match.models'), value: rule.match.models, listId: idp('models'), placeholder: 'deepseek/*', onChange: models => edit((r) => { r.match.models = models }) })),
             h(Field, { label: t('match.paths'), hint: t('match.pathsHint'), htmlFor: idp('paths-input'), wide: true },
@@ -1443,9 +1516,65 @@ window.__ModuleLoader__.load({
       return parts.length === 0 ? t('rule.empty') : parts.join(' · ')
     }
 
+    /** What a rule needs to reach one channel: its host, its base path when another channel shares the host, and its models when one shares the base URL. */
+    function matchOfChannel(channel) {
+      // Two channels with the same base URL differ only in their models.
+      const models = channel.sameEndpoint && channel.models.length > 0 && channel.models.length <= 50 ? channel.models.map(model => model.id) : []
+      return { hosts: [channel.host], paths: channel.sharedHost && channel.basePath !== '' ? [channel.basePath] : [], models }
+    }
+
+    /** The configured channel a rule is written for, when its one host (and path, if needed) names exactly one. */
+    function channelOfRule(channels, rule) {
+      if (rule.match.hosts.length !== 1) return undefined
+      return channels.find(channel => channel.host === rule.match.hosts[0] && (!channel.sharedHost || rule.match.paths.includes(channel.basePath)))
+    }
+
+    /** How many rules reach a channel's host (and, for a shared host, its path or every path). */
+    function rulesOfChannel(rules, channel) {
+      return rules.filter(rule => rule.match.hosts.includes(channel.host) && (!channel.sharedHost || rule.match.paths.length === 0 || rule.match.paths.some(path => channel.basePath.startsWith(path)))).length
+    }
+
+    /** The channels dsh has configured, each with a way to start a rule for it. */
+    function ChannelsSection({ ui, state, rules, open, onToggle, onMake, onRouting }) {
+      const { t } = ui
+      const channels = state?.channels ?? []
+      let content
+      if (state === null) content = h('div', { className: 'rp-hint', role: 'status' }, t('channels.loading'))
+      else if (state.error !== undefined) content = h('div', { className: 'rp-hint is-warn' }, t('channels.failed', { reason: state.error }))
+      else if (!state.available) content = h('div', { className: 'rp-hint' }, t('channels.unavailable'))
+      else if (channels.length === 0) content = h('div', { className: 'rp-hint' }, t('channels.none'))
+      else {
+        content = h('div', { className: 'rp-channels' }, channels.map((channel) => {
+          const count = rulesOfChannel(rules, channel)
+          return h('div', { key: channel.id, className: 'rp-channel' },
+            h('div', { className: 'rp-channelmain' },
+              h('div', { className: 'rp-channeltitle' },
+                h('span', { className: 'rp-channelname' }, channel.name),
+                channel.name === channel.id ? null : h('code', { className: 'rp-dim' }, channel.id)),
+              channel.host === undefined ? h('div', { className: 'rp-hint is-warn' }, t('channels.noHost')) : h('div', { className: 'rp-channelmeta' },
+                h('code', { className: 'rp-channelurl' }, `${channel.host}${channel.basePath}`),
+                h('span', { className: `rp-badge${channel.seen ? ' is-ok' : ''}`, title: t(`channels.source.${channel.source}`) }, channel.seen ? t('channels.seen') : t(`channels.source.${channel.source}`)),
+                channel.modelCount === 0 ? null : h('span', { className: 'rp-badge', title: channel.models.slice(0, 15).map(model => model.id).join('\n') }, pl(t, 'channels.models', channel.modelCount)),
+                count === 0 ? null : h('span', { className: 'rp-badge is-accent' }, pl(t, 'channels.rules', count))),
+              channel.modelsError === undefined ? null : h('div', { className: 'rp-hint' }, t('channels.modelsError', { reason: channel.modelsError }))),
+            h('div', { className: 'rp-rowbtns' },
+              channel.openrouter ? h('button', { type: 'button', className: `rp-btn is-small${count === 0 ? ' rp-primary' : ''}`, onClick: () => onRouting(channel) }, t('channels.routing')) : null,
+              h('button', { type: 'button', className: `rp-btn is-small${count === 0 && !channel.openrouter ? ' rp-primary' : ''}`, disabled: channel.host === undefined, onClick: () => onMake(channel) }, t(channel.openrouter ? 'channels.more' : 'channels.make'))))
+        }))
+      }
+      return h('div', { className: 'rp-section rp-channelsbox' },
+        h('div', { className: 'rp-bar' },
+          h('button', { type: 'button', className: 'rp-grouphead', 'aria-expanded': open, onClick: onToggle },
+            h('span', { className: 'rp-caret', 'aria-hidden': true }, '›'),
+            h('span', { className: 'rp-sectiontitle' }, state?.available && channels.length > 0 ? t('channels.titleCount', { n: channels.length }) : t('channels.title'))),
+          open ? h('span', { className: 'rp-hint rp-grow' }, t('channels.hint')) : null),
+        open ? content : null)
+    }
+
     function RuleRow({ ui, rule, index, count, open, problems, hit, env }) {
       const { t } = ui
-      const hostText = rule.match.hosts.length === 0 ? t('rule.noHost') : rule.match.hosts.length === 1 ? rule.match.hosts[0] : `${rule.match.hosts[0]} +${rule.match.hosts.length - 1}`
+      const channel = channelOfRule(ui.channels, rule)
+      const hostText = rule.match.hosts.length === 0 ? t('rule.noHost') : channel !== undefined ? channel.name : rule.match.hosts.length === 1 ? rule.match.hosts[0] : `${rule.match.hosts[0]} +${rule.match.hosts.length - 1}`
       const blocking = rule.enabled && problems.length > 0
       return h('div', { className: `rp-row${open ? ' is-open' : ''}${rule.enabled ? '' : ' is-off'}`, id: `rp-row-${rule.id}` },
         h('div', { className: 'rp-top' },
@@ -1461,13 +1590,15 @@ window.__ModuleLoader__.load({
     }
 
     /** The ways to start a rule, as cards. */
-    function Gallery({ ui, onPick, onClose, inline }) {
+    function Gallery({ ui, onPick, onClose, inline, target }) {
       const { t } = ui
       const ref = usePanelFocus()
+      const featured = target === undefined || target.openrouter
       return h('div', { className: inline ? 'rp-gallery-inline' : 'rp-panel', ref, tabIndex: -1, onKeyDown: inline ? undefined : onEscape(onClose), role: inline ? undefined : 'group', 'aria-label': t('gallery.title') },
         inline ? null : h('div', { className: 'rp-bar' }, h('strong', { className: 'rp-grow' }, t('gallery.title')), h('button', { type: 'button', className: 'rp-btn is-ghost', onClick: onClose }, t('close'))),
-        h('div', { className: 'rp-cards' }, PRESET_ORDER.map(id => h('button', { key: id, type: 'button', className: `rp-card${id === 'openrouter-routing' ? ' is-featured' : ''}`, onClick: () => onPick(id) },
-          h('span', { className: 'rp-cardtitle' }, t(`preset.${id}.name`), id === 'openrouter-routing' ? h('span', { className: 'rp-badge is-accent' }, t('gallery.popular')) : null),
+        target === undefined ? null : h('div', { className: 'rp-note' }, t('gallery.forChannel', { name: target.name, where: `${target.host}${target.sharedHost ? target.basePath : ''}` })),
+        h('div', { className: 'rp-cards' }, PRESET_ORDER.map(id => h('button', { key: id, type: 'button', className: `rp-card${id === 'openrouter-routing' && featured ? ' is-featured' : ''}`, onClick: () => onPick(id) },
+          h('span', { className: 'rp-cardtitle' }, t(`preset.${id}.name`), id === 'openrouter-routing' && featured ? h('span', { className: 'rp-badge is-accent' }, t('gallery.popular')) : null),
           h('span', { className: 'rp-carddesc' }, t(`preset.${id}.desc`)),
           h('code', { className: 'rp-cardcode' }, t(`preset.${id}.example`))))),
         h('div', { className: 'rp-label' }, t('gallery.recipes')),
@@ -1726,6 +1857,9 @@ window.__ModuleLoader__.load({
       const [building, setBuilding] = React.useState(() => new Set())
       const [recent, setRecent] = React.useState({ recent: [], endpoints: [] })
       const [confirm, setConfirm] = React.useState(null)
+      const [channels, setChannels] = React.useState(null)
+      const [channelsOpen, setChannelsOpen] = React.useState(() => (typeof view.channels === 'boolean' ? view.channels : null))
+      const [galleryTarget, setGalleryTarget] = React.useState(undefined)
       const alive = React.useRef(true)
       const loadSeq = React.useRef(0)
       const checkSeq = React.useRef(0)
@@ -1775,7 +1909,11 @@ window.__ModuleLoader__.load({
         document.addEventListener('keydown', onKey)
         return () => document.removeEventListener('keydown', onKey)
       }, [])
-      React.useEffect(() => { writeStored('sessionStorage', VIEW_KEY, { tab, open: openId }) }, [tab, openId])
+      React.useEffect(() => { writeStored('sessionStorage', VIEW_KEY, { tab, open: openId, ...channelsOpen === null ? {} : { channels: channelsOpen } }) }, [tab, openId, channelsOpen])
+      const loadChannels = React.useCallback(() => post('channels', {}).then(
+        (value) => { if (alive.current) setChannels(value) },
+        (error) => { if (alive.current) setChannels({ available: true, channels: [], error: error.message }) },
+      ), [])
 
       const adopt = (value) => {
         setServer(value)
@@ -1810,6 +1948,7 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         alive.current = true
         void load(false)
+        void loadChannels()
         return () => {
           alive.current = false
           clearTimeout(noticeTimer.current)
@@ -1914,6 +2053,7 @@ window.__ModuleLoader__.load({
         setOpenId(id)
         setTab('rules')
         setPanel(null)
+        setGalleryTarget(undefined)
         setTimeout(() => document.getElementById(`rp-row-${id}`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 60)
       }
       const addRule = (rule) => {
@@ -1921,20 +2061,24 @@ window.__ModuleLoader__.load({
         setDraft(current => ({ ...current, rules: [...current.rules, rule] }))
         reveal(rule.id)
       }
-      const addFromPreset = async (id) => {
-        if (id === 'custom') { addRule(blankRule({ name: t('preset.custom.name') })); return }
+      /** Start a rule from a preset, a recipe, or a blank one; with a channel, the rule is for that channel. */
+      const addFromPreset = async (id, channel = galleryTarget) => {
+        // `null` asks for no channel even while a channel's gallery is open.
+        const target = channel ?? undefined
+        const named = name => (target === undefined ? name : `${name} · ${target.name}`)
+        if (id === 'custom') { addRule(blankRule({ name: named(t('preset.custom.name')), ...target === undefined ? {} : { match: matchOfChannel(target) } })); return }
         if (id.startsWith('recipe:')) {
           const recipeId = id.slice('recipe:'.length)
           const recipe = RECIPES[recipeId]
-          addRule(blankRule({ name: t(`recipe.${recipeId}.name`), match: { hosts: [...recipe.hosts], paths: [], models: [] }, body: { merge: clone(recipe.merge), defaults: {}, remove: [] }, headers: { set: { ...recipe.headers }, remove: [] } }))
+          addRule(blankRule({ name: named(t(`recipe.${recipeId}.name`)), match: target === undefined ? { hosts: [...recipe.hosts], paths: [], models: [] } : matchOfChannel(target), body: { merge: clone(recipe.merge), defaults: {}, remove: [] }, headers: { set: { ...recipe.headers }, remove: [] } }))
           return
         }
         const entry = server.presets[id]
         try {
           const built = await post('preset', { id, form: entry.form })
           addRule(blankRule({
-            name: t(`preset.${id}.name`),
-            match: { hosts: entry.hosts, paths: [], models: [] },
+            name: named(t(`preset.${id}.name`)),
+            match: target === undefined ? { hosts: entry.hosts, paths: [], models: [] } : matchOfChannel(target),
             body: { merge: built.body.merge ?? {}, defaults: {}, remove: built.body.remove ?? [] },
             headers: { set: built.headers.set ?? {}, remove: [] },
             preset: { id, form: built.form },
@@ -1942,6 +2086,11 @@ window.__ModuleLoader__.load({
         } catch (error) {
           show({ kind: 'warn', text: describe(error) })
         }
+      }
+      const openGallery = (target) => {
+        setGalleryTarget(target)
+        setTab('rules')
+        setPanel('gallery')
       }
       const ruleForEndpoint = (endpoint) => {
         addRule(blankRule({ name: endpoint.host, match: { hosts: [endpoint.host], paths: [], models: endpoint.models.length === 1 ? endpoint.models : [] } }))
@@ -2087,6 +2236,7 @@ window.__ModuleLoader__.load({
         t, lang, zh, describe,
         limits: server?.limits,
         endpoints: recent.endpoints,
+        channels: channels?.channels ?? [],
         updateRule, setForm, deleteRule, duplicateRule, moveRule, ruleForEndpoint, dryRun,
         toggleOpen: id => setOpenId(current => (current === id ? null : id)),
       }
@@ -2126,17 +2276,21 @@ window.__ModuleLoader__.load({
               h('button', { type: 'button', className: 'rp-btn is-ghost', 'aria-expanded': panel === 'import', onClick: () => setPanel(panel === 'import' ? null : 'import') }, t('import.button')),
               h('button', { type: 'button', className: 'rp-btn is-ghost', disabled: rules.length === 0, onClick: exportRules }, t('export.button')),
               h('button', { type: 'button', className: 'rp-btn is-ghost', 'aria-expanded': panel === 'help', onClick: () => setPanel(panel === 'help' ? null : 'help') }, t('help.button')),
-              h('button', { type: 'button', className: 'rp-btn is-ghost', disabled: loading, onClick: () => load(true) }, t('refresh')))),
+              h('button', { type: 'button', className: 'rp-btn is-ghost', disabled: loading, onClick: () => { void load(true); void loadChannels() } }, t('refresh')))),
           panel === 'help' ? h(HelpPanel, { ui, onClose: () => setPanel(null) }) : null,
           panel === 'import' ? h(ImportPanel, { ui, hasRules: rules.length > 0, onApply: applyImport, onClose: () => setPanel(null) }) : null,
-          panel === 'gallery' ? h(Gallery, { ui, onPick: addFromPreset, onClose: () => setPanel(null) }) : null,
+          panel === 'gallery' ? h(Gallery, { ui, target: galleryTarget, onPick: id => addFromPreset(id), onClose: () => { setPanel(null); setGalleryTarget(undefined) } }) : null,
+          tab === 'rules' ? h(ChannelsSection, {
+            ui, state: channels, rules, open: channelsOpen ?? rules.length === 0, onToggle: () => setChannelsOpen(!(channelsOpen ?? rules.length === 0)),
+            onMake: openGallery, onRouting: channel => addFromPreset('openrouter-routing', channel),
+          }) : null,
           tab === 'rules' ? (rules.length === 0 ? h('div', { className: 'rp-onboarding' },
             h('div', { className: 'rp-emptytitle' }, t('empty.title')),
             h('div', { className: 'rp-hint' }, t('empty.body')),
-            h(Gallery, { ui, inline: true, onPick: addFromPreset })) : h(React.Fragment, null,
+            panel === 'gallery' ? null : h(Gallery, { ui, inline: true, onPick: id => addFromPreset(id, null) })) : h(React.Fragment, null,
             h('div', { className: 'rp-bar' },
               h('div', { className: 'rp-hint rp-grow' }, t('rules.order')),
-              h('button', { type: 'button', className: 'rp-btn rp-primary', 'aria-expanded': panel === 'gallery', onClick: () => setPanel(panel === 'gallery' ? null : 'gallery') }, t('rule.new'))),
+              h('button', { type: 'button', className: 'rp-btn rp-primary', 'aria-expanded': panel === 'gallery' && galleryTarget === undefined, onClick: () => { if (panel === 'gallery' && galleryTarget === undefined) setPanel(null); else openGallery(undefined) } }, t('rule.new'))),
             h('div', { className: 'rp-list' }, rules.map((rule, index) => h(RuleRow, { key: rule.id, ui, rule, index, count: rules.length, open: openId === rule.id, problems: problemsBy.get(rule.id) ?? [], hit: hits.get(rule.id), env: checked.env }))))) : null,
           tab === 'requests' ? h(RequestsTab, { ui, recent: recent.recent, endpoints: recent.endpoints, rules: draft.rules, enabled: server.enabled, onClear: clearRecent, onPause: () => toggleMaster(false) }) : null,
           tab === 'try' ? h(TryTab, { ui, dirty, rules: draft.rules, defaultUrl: recent.endpoints[0] === undefined ? undefined : `${recent.endpoints[0].scheme ?? 'https'}://${recent.endpoints[0].host}${recent.endpoints[0].path}`, defaultModel: recent.endpoints[0]?.models[0] }) : null)
