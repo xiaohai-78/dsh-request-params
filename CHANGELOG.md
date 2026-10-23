@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 (2026-10-23)
 
 - An upgrade no longer stays marked as installing when the note it leaves in `settings.json` cannot be written, or when DSH's installer throws instead of failing: the note is skipped with a warning in the log and the install goes ahead, and an installer that throws ends the upgrade as failed, so it can be tried again.
 - A channel known to send Anthropic Messages requests (the official DeepSeek route, or a route whose `api` is `anthropic-messages`) no longer offers the vLLM and OpenAI `prompt_cache_key` examples, whose body fields such a gateway would reject. The request format comes from the route's `api` setting, the official route, OpenRouter, or the paths of the requests seen.
