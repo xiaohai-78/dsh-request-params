@@ -160,12 +160,21 @@ export function selfUpdateActions({ ctx, stateDir, refuse }) {
     const requestId = `${PACKAGE_NAME}-upgrade-${Date.now()}`
     const upgrade = { state: 'installing', from: PACKAGE_VERSION, to: check.latest.version, phase: 'installing', startedAt: Date.now(), requestId }
     m.upgrade = upgrade
-    // Written before the install: DSH may replace this plugin while it runs, and the new version reads the note.
+    // Written before the install: DSH may replace this plugin while it runs, and the new version reads the note. The
+    // note only lets the new version say it is running, so the upgrade goes ahead without it.
     await updateSettings(settings => ({ ...settings, upgraded: { from: upgrade.from, to: upgrade.to, at: upgrade.startedAt } }))
+      .catch(error => ctx.logger.warn(`${PACKAGE_NAME} could not write the upgrade note to ${SETTINGS_FILE}: ${message(error)}`))
     const stop = ctx.on('plugin-manager/install-state', (progress) => {
       if (progress.requestId === requestId) upgrade.phase = progress.phase
     })
-    manager.installBundle(check.latest.tarball, { requestId }).then((result) => {
+    let installing
+    try {
+      installing = manager.installBundle(check.latest.tarball, { requestId })
+    } catch (error) {
+      // A manager that throws instead of rejecting ends the upgrade the same way.
+      installing = Promise.reject(error)
+    }
+    installing.then((result) => {
       // The profile already depends on this very release (installed earlier, not loaded yet): a restart loads it.
       const waiting = result.application === 'failed' && result.error?.code === 'already-installed'
       const applied = waiting || result.application === 'applied' || result.application === 'restart-required' || result.application === 'overridden'
