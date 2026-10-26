@@ -24,7 +24,7 @@ Each *parameter* belongs to a channel (or names its own hosts, models, and paths
 - **Safe by default.** Core fields (`messages`, `tools`, `model`, …) and credential headers (`Authorization`, `x-api-key`, …) cannot be changed. Secrets come from environment variables (`{{env:NAME}}`) and are never shown. If something goes wrong while applying a parameter, the request goes out unchanged instead of failing.
 - **One hook for the usual routes.** The official DeepSeek endpoint and the OpenAI-compatible and Anthropic-compatible routes of `llm-pi-ai` (OpenRouter, a self-hosted vLLM, an enterprise gateway) all go through the same `fetch` hook; see Compatibility for what was verified.
 - **Updates in one click.** The page tells you when a newer version of this plugin is out and installs it with DSH's own installer after you confirm.
-- **Everyday comforts.** A switch pauses everything at once. Unsaved edits survive leaving the page, and Ctrl/⌘ + S saves. Deleting can be undone. A rules file changed elsewhere is detected instead of overwritten. Parameters export to and import from JSON. English and Chinese, light and dark, down to phone width.
+- **Everyday comforts.** A switch pauses everything at once. Unsaved edits survive leaving the page, and Ctrl/⌘ + S saves. Deleting can be undone. A rules file changed elsewhere is detected instead of overwritten. Parameters export to and import from JSON. English and Chinese, light and dark, down to phone width. If the page itself fails to draw, it shows the error and **Reload** instead of an empty panel.
 
 <p align="center">
   <picture>

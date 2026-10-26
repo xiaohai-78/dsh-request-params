@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- When the page itself fails to draw, it shows the error and a **Reload** button instead of the empty panel DSH leaves in its place.
+
 ## 0.3.0 (2026-10-26)
 
 - **What a channel reads**: each channel shows its protocol under its address: the request format it reads (OpenAI or Anthropic) and the extra fields it reads on top (OpenRouter, vLLM, OpenAI, Helicone, Cloudflare AI Gateway). It is worked out from the route's `api` setting, the official DeepSeek routes, the hosted service's address, and the requests seen, and **Change** corrects it; the setting is kept in the rules file under `protocols`, keyed by host and base path. A gateway of your own that speaks OpenRouter's protocol gets provider routing, reasoning effort, and app attribution by ticking **OpenRouter fields**.

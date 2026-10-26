@@ -16,6 +16,9 @@ window.__ModuleLoader__.load({
     const CHANNEL_RECENT = 5
 
     const ZH = {
+      'crash.title': '这个页面出错了',
+      'crash.body': '点「重新加载」会重新打开这个页面。如果反复出现，请把下面的错误原文发给插件作者。',
+      'crash.reload': '重新加载',
       'nav': '请求参数',
       'title': '请求参数',
       'intro': '给发往模型的请求加上你需要的参数：OpenRouter 供应商路由、思考强度、额外字段和请求头',
@@ -468,6 +471,9 @@ window.__ModuleLoader__.load({
     }
 
     const EN = {
+      'crash.title': 'This page ran into an error',
+      'crash.body': 'Reload opens the page again. If it keeps happening, send the error below to the plugin author.',
+      'crash.reload': 'Reload',
       'nav': 'Request Params',
       'title': 'Request Parameters',
       'intro': 'Add the parameters you need to model requests: OpenRouter provider routing, reasoning effort, extra fields, and headers',
@@ -3331,13 +3337,66 @@ window.__ModuleLoader__.load({
               h('button', { type: 'button', className: 'rp-onbar is-primary', disabled: !canSave, onClick: () => save(false) }, saving ? t('save.saving') : t('save.save')))) : null))
     }
 
+    /**
+     * Shows the error and a way to open the page again when it throws while rendering; without this, DSH replaces the
+     * whole panel with an empty box. Errors in event handlers and requests do not reach it; the page reports those itself.
+     */
+    class PageGuard extends React.Component {
+      constructor(props) {
+        super(props)
+        this.state = { error: null, attempt: 0 }
+      }
+
+      static getDerivedStateFromError(error) {
+        return { error }
+      }
+
+      componentDidCatch(error, info) {
+        console.error(`${NS}: the page failed to render`, error, info?.componentStack ?? '')
+      }
+
+      render() {
+        const { error, attempt } = this.state
+        // A new key on each attempt mounts the page afresh, so it loads its data again.
+        if (error === null) return h(React.Fragment, { key: attempt }, this.props.children)
+        // The dictionaries may be what failed, so every line has its own words to fall back on.
+        const t = (key, fallback) => {
+          try {
+            const text = this.props.t(key)
+            return typeof text === 'string' && text !== key ? text : fallback
+          } catch {
+            // The locale service failed as well; the English text stands in.
+            return fallback
+          }
+        }
+        // Stack addresses shrink to a file name and position; the plugins bundle's address lists every plugin.
+        const shorten = line => line.replace(/\(?(https?:\/\/\S+?)(:\d+:\d+)\)?$/, (_, address, position) => {
+          const path = address.split('?')[0]
+          return `(${path.endsWith('/plugins/') ? 'plugins' : path.slice(path.lastIndexOf('/') + 1)}${position})`
+        })
+        const detail = error instanceof Error
+          ? [`${error.name}: ${error.message}`, ...(error.stack ?? '').split('\n').filter(line => /^\s+at /.test(line)).slice(0, 6).map(shorten)].join('\n')
+          : String(error)
+        return h('div', { role: 'alert', style: { boxSizing: 'border-box', height: '100%', overflowY: 'auto', padding: '28px 32px', color: 'var(--dsw-alias-label-primary)', fontSize: 13, lineHeight: 1.6 } },
+          h('div', { style: { maxWidth: 760, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 } },
+            h('strong', { style: { fontSize: 15 } }, t('crash.title', 'This page ran into an error')),
+            h('div', { style: { color: 'var(--dsw-alias-label-secondary)' } }, t('crash.body', 'Reload opens the page again. If it keeps happening, send the error below to the plugin author.')),
+            h('pre', { style: { alignSelf: 'stretch', margin: 0, padding: '10px 12px', borderRadius: 8, background: 'var(--dsw-alias-interactive-bg-hover)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: 'var(--dsw-font-mono, ui-monospace, monospace)', fontSize: 12, userSelect: 'text' } }, detail),
+            h('button', {
+              type: 'button',
+              style: { height: 30, padding: '0 14px', borderRadius: 8, border: 0, background: 'var(--dsw-alias-button-primary-fill)', color: 'var(--dsw-alias-label-primary-inverted, var(--dsw-alias-bg-layer-1))', font: 'inherit', fontSize: 12, fontWeight: 500, cursor: 'pointer' },
+              onClick: () => this.setState(state => ({ error: null, attempt: state.attempt + 1 })),
+            }, t('crash.reload', 'Reload'))))
+      }
+    }
+
     return {
       inject: ['slots', 'locale'],
       apply(ctx) {
         ctx.effect(() => ctx.locale.register(NS, { zh: ZH, en: EN }), 'dsh-request-params: dictionaries')
         const t = ctx.locale.bind(NS)
         ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: PANEL_ID, order: 6, label: () => t('nav') }, SidebarIcon))
-        ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: PANEL_ID }, () => h(Page, { ctx, t })))
+        ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: PANEL_ID }, () => h(PageGuard, { t }, h(Page, { ctx, t }))))
       },
     }
   },
