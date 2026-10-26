@@ -1,6 +1,6 @@
 {
   "name": "dsh-request-params",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Add your own parameters to the model requests dsh sends: OpenRouter provider routing and fallback models, reasoning, sampling and custom body fields, and headers, for OpenRouter or any other gateway. Parameters are organized by the channels dsh already has; a live preview shows what each request will carry, and a request log shows what was sent and what the gateway answered.",
   "keywords": [
     "deepseek-harness",
