@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Adding provider routing under **Other addresses** no longer breaks the page when no channel is OpenRouter: the provider search read the catalog answer of a model it had not asked for yet. In 0.2.0 to 0.3.0 this left the page empty.
 - When the page itself fails to draw, it shows the error and a **Reload** button instead of the empty panel DSH leaves in its place.
 
 ## 0.3.0 (2026-10-26)

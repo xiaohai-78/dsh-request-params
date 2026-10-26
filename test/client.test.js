@@ -119,6 +119,16 @@ test('the page and the Host list the same formats and extensions', async () => {
   assert.deepEqual(extract('const FORMATS', 'const EXTENSIONS', 'FORMATS'), FORMATS)
 })
 
+test('a catalog answer counts only for the model it was asked for, and there is none before the first one', () => {
+  const answerFor = extract('const answerFor', '/**\n     * A search field for OpenRouter providers', 'answerFor')
+  const kept = { model: 'deepseek/deepseek-chat', value: { endpoints: [] } }
+  assert.equal(answerFor(null, undefined), undefined, 'another address has no preview model and no answer yet')
+  assert.equal(answerFor(null, 'deepseek/deepseek-chat'), undefined)
+  assert.equal(answerFor(kept, 'deepseek/deepseek-chat'), kept)
+  assert.equal(answerFor(kept, 'other/model'), undefined)
+  assert.equal(answerFor({ model: undefined, value: null }, undefined), undefined)
+})
+
 /** The page's pure helpers for channels, summaries, and the preview, with the two small helpers they use. */
 function helpers() {
   const prelude = ['const pl =', 'const filled ='].map(start => source.slice(source.indexOf(start), source.indexOf('\n', source.indexOf(start)))).join('\n')

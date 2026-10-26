@@ -1724,6 +1724,12 @@ window.__ModuleLoader__.load({
     }
 
     /**
+     * The catalog answer kept for `model`, or undefined before the first answer and while the kept one is for another
+     * model. A field with no model (another address has no preview model) has no answer either.
+     */
+    const answerFor = (served, model) => (served !== null && typeof model === 'string' && served.model === model ? served : undefined)
+
+    /**
      * A search field for OpenRouter providers. Its list shows first the providers that serve `model`, with price and
      * uptime, then every provider; Enter or a click adds one, and Enter on text that matches none adds the text as typed,
      * so a variant slug such as deepinfra/fp4 can be given. With `chips`, the chosen providers sit in the field as chips.
@@ -1743,7 +1749,7 @@ window.__ModuleLoader__.load({
         loadCatalog('orEndpoints', { model }).then(value => { if (alive) setServed({ model, value }) }, () => { if (alive) setServed({ model, value: null }) })
         return () => { alive = false }
       }, [open, model])
-      const servedNow = served?.model === model ? served.value : undefined
+      const servedNow = answerFor(served, model)?.value
       const query = text.trim().toLowerCase()
       const hit = (...fields) => query === '' || fields.some(field => typeof field === 'string' && field.toLowerCase().includes(query))
       const modelItems = forModel && servedNow ? servedNow.endpoints.filter(endpoint => hit(endpoint.tag, endpoint.provider)).map(endpoint => ({ slug: endpoint.tag, name: endpoint.provider, meta: `${priceText(endpoint)}${endpoint.uptime === null ? '' : ` · ${endpoint.uptime.toFixed(0)}%`}` })) : []
@@ -1829,7 +1835,7 @@ window.__ModuleLoader__.load({
         loadCatalog('orEndpoints', { model }).then(value => { if (alive) setServed({ model, tags: value.endpoints.map(endpoint => endpoint.tag) }) }, () => { if (alive) setServed(null) })
         return () => { alive = false }
       }, [model, forModel, listed])
-      const tags = forModel && served?.model === model ? served.tags : undefined
+      const tags = forModel ? answerFor(served, model)?.tags : undefined
       // A slug without a variant covers every variant of that provider.
       const serves = slug => tags === undefined || tags.some(tag => tag === slug || tag.startsWith(`${slug}/`))
       const strict = form.only.length > 0 ? form.only : form.allowFallbacks ? [] : form.order
