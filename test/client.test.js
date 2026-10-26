@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 
-const source = await readFile(new URL('../client.js', import.meta.url), 'utf8')
+// A Windows checkout may have CRLF line endings; the markers below are written with LF.
+const source = (await readFile(new URL('../client.js', import.meta.url), 'utf8')).replaceAll('\r\n', '\n')
 
 /** The entries of one dictionary literal in client.js. */
 function dictionary(name) {
@@ -120,7 +121,7 @@ test('the page and the Host list the same formats and extensions', async () => {
 })
 
 test('a catalog answer counts only for the model it was asked for, and there is none before the first one', () => {
-  const answerFor = extract('const answerFor', '/**\n     * A search field for OpenRouter providers', 'answerFor')
+  const answerFor = extract('const answerFor', 'function ProviderPicker', 'answerFor')
   const kept = { model: 'deepseek/deepseek-chat', value: { endpoints: [] } }
   assert.equal(answerFor(null, undefined), undefined, 'another address has no preview model and no answer yet')
   assert.equal(answerFor(null, 'deepseek/deepseek-chat'), undefined)
