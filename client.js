@@ -100,7 +100,36 @@ window.__ModuleLoader__.load({
       'preview.unsaved': '含未保存的修改',
       'preview.failed': '预览失败：{reason}',
       'add.recipes': '常见网关的示例',
-      'add.openrouter': 'OpenRouter',
+      'add.other': '其他种类（{n}）',
+      'add.otherHint': '按这个渠道的协议说明，它可能不认这些种类加的字段。照样可以添加；如果它其实认，在上面修改协议说明，它们就会排到前面。',
+      'needs': '需要 {what}',
+      'protocol.line': '协议：{text}',
+      'protocol.title': '这个渠道认哪些字段',
+      'protocol.hint': '只影响这里优先推荐哪些参数，以及 OpenRouter 目录的提示是否只作参考，不改变请求怎么发。改动和参数一起保存。',
+      'protocol.formatLabel': '请求格式',
+      'protocol.formatAuto': '自动：{format}',
+      'protocol.extensionsLabel': '还认这些字段',
+      'protocol.detectedTag': '自动识别',
+      'protocol.auto': '自动识别',
+      'protocol.declared': '手动设置',
+      'protocol.edit': '修改',
+      'protocol.done': '完成',
+      'protocol.reset': '恢复自动识别',
+      'protocol.noExtensions': '无扩展',
+      'protocol.format.openai': 'OpenAI 格式',
+      'protocol.format.anthropic': 'Anthropic 格式',
+      'protocol.format.other': '其他格式',
+      'protocol.format.unknown': '格式未知',
+      'ext.openrouter': 'OpenRouter 扩展：provider、reasoning、models 等',
+      'ext.vllm': 'vLLM / SGLang 字段：chat_template_kwargs 等',
+      'ext.openai': 'OpenAI 官方字段：prompt_cache_key 等',
+      'ext.helicone': 'Helicone 网关的请求头',
+      'ext.cloudflare': 'Cloudflare AI Gateway 的请求头',
+      'ext.short.openrouter': 'OpenRouter 扩展',
+      'ext.short.vllm': 'vLLM 字段',
+      'ext.short.openai': 'OpenAI 字段',
+      'ext.short.helicone': 'Helicone',
+      'ext.short.cloudflare': 'Cloudflare AI Gateway',
       'preset.openrouter-routing.name': '供应商路由',
       'preset.openrouter-routing.desc': '指定走哪些供应商、顺序、数据政策，以及备用模型',
       'preset.reasoning.name': '思考强度',
@@ -219,6 +248,11 @@ window.__ModuleLoader__.load({
       'route.bundled': '没连上 OpenRouter，用的是内置的供应商列表（{date}）',
       'route.notServing': '不提供该模型',
       'route.notServingTitle': '按 OpenRouter 的目录，这个供应商目前不提供 {model}',
+      'route.notServingRef': '目录里不提供',
+      'route.notServingRefTitle': '按 OpenRouter 公开目录，这个供应商不提供 {model}；你的网关可能不同',
+      'route.noneServeRef': '按 OpenRouter 公开目录，列出的供应商都不提供 {model}；你的网关可能不同，以它为准',
+      'route.reference': '这个参数发往 {hosts}，不是 openrouter.ai。下面的供应商列表和「是否提供该模型」来自 OpenRouter 公开目录，仅供参考；供应商名以你的网关为准，可以直接输入。',
+      'picker.forModelRef': 'OpenRouter 公开目录里提供 {model} 的供应商（仅供参考）',
       'route.noneServe': '按 OpenRouter 的目录，这些供应商都不提供 {model}，又不允许换用其他供应商，这个模型的请求会失败（No endpoints found）。换一个模型预览，或改用提供它的供应商',
       'route.noneServeFallback': '按 OpenRouter 的目录，这些供应商都不提供 {model}，这个模型的请求会交给其他供应商',
       'route.noTraffic': '还没有看到发往 openrouter.ai 的请求。在 llm-pi-ai 里加上 openrouter 渠道后，这一项才会生效（见插件说明）',
@@ -518,7 +552,36 @@ window.__ModuleLoader__.load({
       'preview.unsaved': 'includes unsaved changes',
       'preview.failed': 'Preview failed: {reason}',
       'add.recipes': 'Examples for common gateways',
-      'add.openrouter': 'OpenRouter',
+      'add.other': 'Other kinds ({n})',
+      'add.otherHint': 'By its protocol, this channel may not read the fields these kinds add. You can still add them; if it does read them, change the protocol above and they move up.',
+      'needs': 'Needs {what}',
+      'protocol.line': 'Protocol: {text}',
+      'protocol.title': 'What this channel reads',
+      'protocol.hint': 'This only decides which kinds of parameter come first here and whether OpenRouter catalog hints are only a reference; requests are sent the same way. Changes are saved with the parameters.',
+      'protocol.formatLabel': 'Request format',
+      'protocol.formatAuto': 'Automatic: {format}',
+      'protocol.extensionsLabel': 'Also reads',
+      'protocol.detectedTag': 'detected',
+      'protocol.auto': 'detected',
+      'protocol.declared': 'set by you',
+      'protocol.edit': 'Change',
+      'protocol.done': 'Done',
+      'protocol.reset': 'Use what was detected',
+      'protocol.noExtensions': 'no extensions',
+      'protocol.format.openai': 'OpenAI format',
+      'protocol.format.anthropic': 'Anthropic format',
+      'protocol.format.other': 'Other format',
+      'protocol.format.unknown': 'Format unknown',
+      'ext.openrouter': 'OpenRouter fields: provider, reasoning, models, …',
+      'ext.vllm': 'vLLM / SGLang fields: chat_template_kwargs, …',
+      'ext.openai': 'OpenAI fields: prompt_cache_key, …',
+      'ext.helicone': 'Helicone gateway headers',
+      'ext.cloudflare': 'Cloudflare AI Gateway headers',
+      'ext.short.openrouter': 'OpenRouter fields',
+      'ext.short.vllm': 'vLLM fields',
+      'ext.short.openai': 'OpenAI fields',
+      'ext.short.helicone': 'Helicone',
+      'ext.short.cloudflare': 'Cloudflare AI Gateway',
       'preset.openrouter-routing.name': 'Provider routing',
       'preset.openrouter-routing.desc': 'Choose providers and their order, data policy, and fallback models',
       'preset.reasoning.name': 'Reasoning effort',
@@ -637,6 +700,11 @@ window.__ModuleLoader__.load({
       'route.bundled': 'OpenRouter could not be reached; showing the built-in provider list ({date})',
       'route.notServing': 'does not serve this model',
       'route.notServingTitle': 'In the OpenRouter catalog this provider does not serve {model} right now',
+      'route.notServingRef': 'not listed for this model',
+      'route.notServingRefTitle': 'In the public OpenRouter catalog this provider does not serve {model}; your gateway may differ',
+      'route.noneServeRef': 'In the public OpenRouter catalog none of the listed providers serves {model}; your gateway may differ',
+      'route.reference': 'This parameter goes to {hosts}, not openrouter.ai. The provider list and whether a provider serves the model come from the public OpenRouter catalog and are only a reference; use the provider names your gateway expects, typed in if needed.',
+      'picker.forModelRef': 'Providers serving {model} in the public OpenRouter catalog (a reference)',
       'route.noneServe': 'In the OpenRouter catalog none of these providers serves {model}, and other providers are not allowed, so requests for this model will fail (No endpoints found). Preview another model, or pick a provider that serves it',
       'route.noneServeFallback': 'In the OpenRouter catalog none of these providers serves {model}, so requests for this model go to other providers',
       'route.noTraffic': 'No request to openrouter.ai has been seen yet. This works once an openrouter channel exists in llm-pi-ai (see the plugin README)',
@@ -1007,6 +1075,10 @@ window.__ModuleLoader__.load({
 .rp-tiledesc { font-size: 12px; line-height: 1.45; color: var(--rp-fg2); }
 .rp-menuitem .rp-tiledesc { font-size: 11px; color: var(--rp-fg3); }
 .rp-grouplabel { margin-top: 6px; font-size: 12px; color: var(--rp-fg3); }
+.rp-fold { margin-top: 4px; }
+.rp-menuitem.rp-fold { color: var(--rp-fg3); }
+.rp-menuitem.rp-fold[aria-expanded="true"] .rp-icon { transform: rotate(90deg); }
+.rp-protocol { margin-top: 4px; }
 .rp-empty { display: flex; flex-direction: column; gap: 12px; }
 .rp-emptyhead { display: flex; flex-direction: column; gap: 2px; padding: 4px 0; }
 .rp-emptytitle { font-size: 14px; font-weight: 600; }
@@ -1130,6 +1202,10 @@ window.__ModuleLoader__.load({
     const clone = value => JSON.parse(JSON.stringify(value))
     const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
     const pretty = value => JSON.stringify(value, null, 2)
+    /** An object with its keys sorted, as the Host stores declared protocols, so equal drafts compare equal. */
+    const sortedKeys = value => Object.fromEntries(Object.keys(value).sort().map(key => [key, value[key]]))
+    /** The editable part of what the Host answered: the switch, the rules, and the declared protocols. */
+    const draftOf = value => ({ enabled: value.enabled, rules: clone(value.rules), protocols: clone(value.protocols ?? {}) })
     /** Whether a form number field holds something (a number, or text typed into it). */
     const filled = value => value !== null && value !== undefined && String(value).trim() !== ''
 
@@ -1300,6 +1376,11 @@ window.__ModuleLoader__.load({
     }
 
     const OR_MODEL = /^[\w.~-]+\/[\w.:~@+-]+$/
+    /** Whether a host pattern of a rule is openrouter.ai or under it, whatever its port or wildcard. */
+    const isOpenRouterHost = (pattern) => {
+      const name = pattern.replace(/^\*\./, '').replace(/:\d+$/, '')
+      return name === 'openrouter.ai' || name.endsWith('.openrouter.ai')
+    }
 
     /** Whether a rule's hosts and paths reach a channel's model requests, by the engine's tests; models are not considered. */
     function reaches(rule, channel) {
@@ -1641,7 +1722,7 @@ window.__ModuleLoader__.load({
      * uptime, then every provider; Enter or a click adds one, and Enter on text that matches none adds the text as typed,
      * so a variant slug such as deepinfra/fp4 can be given. With `chips`, the chosen providers sit in the field as chips.
      */
-    function ProviderPicker({ ui, id, placeholder, providers, model, chosen, onPick, chips }) {
+    function ProviderPicker({ ui, id, placeholder, providers, model, chosen, onPick, chips, reference }) {
       const { t } = ui
       const [text, setText] = React.useState('')
       const [open, setOpen] = React.useState(false)
@@ -1708,7 +1789,7 @@ window.__ModuleLoader__.load({
             h('button', { type: 'button', className: 'rp-chipx', 'aria-label': t('removeItem', { item }), onClick: (event) => { event.stopPropagation(); chips.onRemove(index) } }, h(Icon, { name: 'x', size: 12 })))),
           field),
         open ? h('div', { className: 'rp-pickerlist', role: 'listbox', id: `${id}-list`, ref: list, onMouseDown: event => event.preventDefault() },
-          forModel ? h('div', { className: 'rp-menulabel' }, t('picker.forModel', { model })) : null,
+          forModel ? h('div', { className: 'rp-menulabel' }, t(reference ? 'picker.forModelRef' : 'picker.forModel', { model })) : null,
           forModel && servedNow === undefined ? h('div', { className: 'rp-menulabel' }, t('picker.loading')) : null,
           forModel && servedNow?.stale ? h('div', { className: 'rp-menulabel' }, t('picker.stale')) : null,
           modelItems.map((item, index) => option(item, index)),
@@ -1730,7 +1811,9 @@ window.__ModuleLoader__.load({
       const idp = suffix => `rp-${rule.id}-${suffix}`
       const toggle = (key, value) => set({ [key]: form[key].includes(value) ? form[key].filter(item => item !== value) : [...form[key], value] })
       const providerChips = key => ({ items: form[key], label, onRemove: index => set({ [key]: form[key].filter((_, at) => at !== index) }) })
-      const noTraffic = rule.match.hosts.some(host => host.endsWith('openrouter.ai')) && !ui.endpoints.some(endpoint => endpoint.host.endsWith('openrouter.ai')) && !ui.channels.some(channel => channel.openrouter)
+      const noTraffic = rule.match.hosts.some(isOpenRouterHost) && !ui.endpoints.some(endpoint => isOpenRouterHost(endpoint.host)) && !ui.channels.some(channel => channel.detected?.extensions.includes('openrouter'))
+      // OpenRouter's catalog describes openrouter.ai; for another gateway that reads the same fields it is only a reference.
+      const reference = rule.match.hosts.length === 0 || !rule.match.hosts.every(isOpenRouterHost)
       const forModel = typeof model === 'string' && OR_MODEL.test(model)
       const listed = form.order.length > 0 || form.only.length > 0
       const [served, setServed] = React.useState(null)
@@ -1744,21 +1827,28 @@ window.__ModuleLoader__.load({
       // A slug without a variant covers every variant of that provider.
       const serves = slug => tags === undefined || tags.some(tag => tag === slug || tag.startsWith(`${slug}/`))
       const strict = form.only.length > 0 ? form.only : form.allowFallbacks ? [] : form.order
+      const named = [...form.order, ...form.only]
       let reach = null
-      if (strict.length > 0 && !strict.some(serves)) reach = h('div', { className: 'rp-note is-warn', role: 'status' }, t('route.noneServe', { model }))
-      else if (form.order.length > 0 && !form.order.some(serves)) reach = h('div', { className: 'rp-hint is-warn' }, t('route.noneServeFallback', { model }))
+      if (reference) {
+        if (named.length > 0 && !named.some(serves)) reach = h('div', { className: 'rp-hint' }, t('route.noneServeRef', { model }))
+      } else if (strict.length > 0 && !strict.some(serves)) {
+        reach = h('div', { className: 'rp-note is-warn', role: 'status' }, t('route.noneServe', { model }))
+      } else if (form.order.length > 0 && !form.order.some(serves)) {
+        reach = h('div', { className: 'rp-hint is-warn' }, t('route.noneServeFallback', { model }))
+      }
       return h('div', { className: 'rp-rows' },
         h('datalist', { id: idp('ormodels') }, (models?.models ?? []).slice(0, 800).map(item => h('option', { key: item.id, value: item.id }, item.name))),
         providers?.source === 'bundled' ? h('div', { className: 'rp-rowfull rp-hint is-warn' }, t('route.bundled', { date: providers.asOf })) : null,
         noTraffic ? h('div', { className: 'rp-rowfull rp-note' }, t('route.noTraffic')) : null,
+        reference ? h('div', { className: 'rp-rowfull rp-note' }, t('route.reference', { hosts: rule.match.hosts.length === 0 ? '—' : rule.match.hosts.join(t('listSeparator')) })) : null,
         h(Row, { label: t('route.providers'), htmlFor: idp('order'), hint: form.order.length === 0 ? t('route.providersHint') : null },
-          h(OrderItems, { ui, value: form.order, onChange: order => set({ order }), render: slug => [h('span', { key: 'n' }, label(slug)), label(slug) === slug ? null : h('span', { key: 's', className: 'rp-slug' }, slug), serves(slug) ? null : h('span', { key: 'w', className: 'rp-badge is-warn', title: t('route.notServingTitle', { model }) }, t('route.notServing'))] }),
-          h(ProviderPicker, { ui, id: idp('order'), placeholder: t('route.search'), providers, model, chosen: form.order, onPick: slug => set({ order: [...form.order, slug] }) }),
+          h(OrderItems, { ui, value: form.order, onChange: order => set({ order }), render: slug => [h('span', { key: 'n' }, label(slug)), label(slug) === slug ? null : h('span', { key: 's', className: 'rp-slug' }, slug), serves(slug) ? null : h('span', { key: 'w', className: reference ? 'rp-badge' : 'rp-badge is-warn', title: t(reference ? 'route.notServingRefTitle' : 'route.notServingTitle', { model }) }, t(reference ? 'route.notServingRef' : 'route.notServing'))] }),
+          h(ProviderPicker, { ui, id: idp('order'), placeholder: t('route.search'), providers, model, chosen: form.order, onPick: slug => set({ order: [...form.order, slug] }), reference }),
           reach),
         form.order.length === 0 ? null : h(Row, { label: t('route.others'), hint: t('route.othersHint') },
           h(Seg, { value: form.allowFallbacks ? 'allow' : 'deny', label: t('route.others'), onChange: value => set({ allowFallbacks: value === 'allow' }), options: [{ value: 'allow', label: t('route.othersAllow') }, { value: 'deny', label: t('route.othersDeny') }] })),
         h(Row, { label: t('route.ignore'), htmlFor: idp('ignore') },
-          h(ProviderPicker, { ui, id: idp('ignore'), placeholder: t('route.ignoreSearch'), providers, model, chosen: form.ignore, onPick: slug => set({ ignore: [...form.ignore, slug] }), chips: providerChips('ignore') })),
+          h(ProviderPicker, { ui, id: idp('ignore'), placeholder: t('route.ignoreSearch'), providers, model, chosen: form.ignore, onPick: slug => set({ ignore: [...form.ignore, slug] }), chips: providerChips('ignore'), reference })),
         h(Row, { label: t('route.sort') },
           h(Seg, { value: form.sort, label: t('route.sort'), onChange: sort => set({ sort }), options: [{ value: '', label: t('route.sortDefault') }, { value: 'price', label: t('route.sortPrice') }, { value: 'throughput', label: t('route.sortThroughput') }, { value: 'latency', label: t('route.sortLatency') }] })),
         h(Row, { label: t('route.data') },
@@ -1771,7 +1861,7 @@ window.__ModuleLoader__.load({
           h('button', { type: 'button', className: 'rp-link', 'aria-expanded': more, onClick: () => setMore(!more) }, h(Icon, { name: 'chevron', size: 12 }), more ? t('route.less') : t('route.more'))),
         more ? h(React.Fragment, null,
           h(Row, { label: t('route.only'), htmlFor: idp('only'), hint: t('route.onlyHint') },
-            h(ProviderPicker, { ui, id: idp('only'), placeholder: t('route.onlySearch'), providers, model, chosen: form.only, onPick: slug => set({ only: [...form.only, slug] }), chips: providerChips('only') })),
+            h(ProviderPicker, { ui, id: idp('only'), placeholder: t('route.onlySearch'), providers, model, chosen: form.only, onPick: slug => set({ only: [...form.only, slug] }), chips: providerChips('only'), reference })),
           h(Row, { label: t('route.require') },
             h('div', { className: 'rp-checks' }, h(Check, { checked: form.requireParameters, onChange: requireParameters => set({ requireParameters }), hint: t('route.requireHint') }, t('route.requireLabel')))),
           h(Row, { label: t('route.quant'), hint: t('route.quantHint') },
@@ -1835,29 +1925,78 @@ window.__ModuleLoader__.load({
     const FORMS = { 'openrouter-routing': RoutingForm, reasoning: ReasoningForm, sampling: SamplingForm, session: SessionForm, attribution: AttributionForm, strip: StripForm }
     const TYPE_ICON = { 'openrouter-routing': 'route', reasoning: 'bulb', sampling: 'sliders', session: 'link', attribution: 'tag', strip: 'minus', custom: 'braces' }
     const PRESET_ORDER = ['openrouter-routing', 'reasoning', 'sampling', 'session', 'attribution', 'strip', 'custom']
-    /** The kinds whose fields only OpenRouter reads; a channel that is not OpenRouter does not offer them. */
-    const OPENROUTER_ONLY = new Set(['openrouter-routing', 'reasoning', 'attribution'])
-    /**
-     * Ready-made custom rules for other gateways; each field is one the gateway documents. `format` names the request
-     * format whose body the fields belong in; a recipe without one only adds headers.
-     */
+    /** Ready-made custom rules for other gateways; each field is one the gateway documents. */
     const RECIPES = {
-      'vllm-thinking': { format: 'openai', hosts: [], merge: { chat_template_kwargs: { enable_thinking: false } }, headers: {} },
+      'vllm-thinking': { hosts: [], merge: { chat_template_kwargs: { enable_thinking: false } }, headers: {} },
       helicone: { hosts: ['*.helicone.ai'], merge: {}, headers: { 'Helicone-Auth': 'Bearer {{env:HELICONE_API_KEY}}', 'Helicone-Session-Id': '{{session}}', 'Helicone-Property-App': 'dsh' } },
       cloudflare: { hosts: ['gateway.ai.cloudflare.com'], merge: {}, headers: { 'cf-aig-cache-ttl': '3600', 'cf-aig-metadata': '{"session":"{{session}}"}' } },
-      'openai-cache': { format: 'openai', hosts: ['api.openai.com'], merge: { prompt_cache_key: '{{session}}' }, headers: {} },
+      'openai-cache': { hosts: ['api.openai.com'], merge: { prompt_cache_key: '{{session}}' }, headers: {} },
     }
     const RECIPE_ORDER = Object.keys(RECIPES)
 
+    /** Request formats and extensions an endpoint can understand; the same lists as protocols.js on the Host. */
+    const FORMATS = ['openai', 'anthropic', 'other']
+    const EXTENSIONS = ['openrouter', 'vllm', 'openai', 'helicone', 'cloudflare']
     /**
-     * The kinds of parameter a channel can get; with no channel (another address), every kind and recipe. A channel
-     * whose request format is known does not offer recipes whose body fields belong to another format.
+     * What each kind of parameter needs the endpoint to understand: a request format or an extension. A kind that is
+     * not listed works anywhere. Recipes are named `recipe:<id>`.
      */
-    function choicesFor(channel) {
-      if (channel === undefined) return { presets: PRESET_ORDER, recipes: RECIPE_ORDER }
-      if (channel.openrouter) return { presets: PRESET_ORDER, recipes: [] }
-      const recipes = RECIPE_ORDER.filter(id => RECIPES[id].format === undefined || channel.format === undefined || RECIPES[id].format === channel.format)
-      return { presets: ['custom', 'sampling', 'session', 'strip'], recipes }
+    const NEEDS = {
+      'openrouter-routing': { extension: 'openrouter' },
+      'reasoning': { extension: 'openrouter' },
+      'attribution': { extension: 'openrouter' },
+      'sampling': { format: 'openai' },
+      'recipe:vllm-thinking': { extension: 'vllm' },
+      'recipe:helicone': { extension: 'helicone' },
+      'recipe:cloudflare': { extension: 'cloudflare' },
+      'recipe:openai-cache': { extension: 'openai' },
+    }
+    /** The order of a channel's kinds within the same specificity: those needing an extension, then a format, then none. */
+    const CHANNEL_ORDER = ['openrouter-routing', 'reasoning', 'attribution', 'sampling', 'custom', 'session', 'strip']
+
+    /**
+     * What a channel understands: what dsh tells about it (`detected`), with the user's declaration for its endpoint
+     * (`protocols[channel.key]`) on top. A declared extension set to false removes a detected one.
+     */
+    function protocolOf(channel, protocols) {
+      const declared = channel.key === undefined ? undefined : protocols?.[channel.key]
+      const detected = channel.detected ?? { extensions: [] }
+      return {
+        format: declared?.format ?? detected.format,
+        extensions: EXTENSIONS.filter(id => declared?.extensions?.[id] ?? detected.extensions.includes(id)),
+        declared: declared !== undefined,
+      }
+    }
+
+    /** Whether an endpoint with this protocol reads what a kind adds; an unknown format reads every format's fields. */
+    function fits(id, protocol) {
+      const need = NEEDS[id]
+      if (need === undefined) return true
+      if (need.extension !== undefined) return protocol.extensions.includes(need.extension)
+      return protocol.format === undefined || protocol.format === need.format
+    }
+
+    /**
+     * The kinds of parameter to offer: those the channel reads, most specific first, its fitting recipes, and the rest,
+     * which stay available under a fold. With no channel (another address) every kind and recipe is offered.
+     */
+    function choicesFor(channel, protocol) {
+      const recipes = RECIPE_ORDER.map(id => `recipe:${id}`)
+      if (channel === undefined) return { presets: PRESET_ORDER, recipes, other: [] }
+      const rank = id => (NEEDS[id]?.extension !== undefined ? 2 : NEEDS[id]?.format !== undefined ? 1 : 0)
+      const presets = CHANNEL_ORDER.filter(id => fits(id, protocol)).sort((a, b) => rank(b) - rank(a))
+      return {
+        presets,
+        recipes: recipes.filter(id => fits(id, protocol)),
+        other: [...CHANNEL_ORDER.filter(id => !fits(id, protocol)), ...recipes.filter(id => !fits(id, protocol))],
+      }
+    }
+
+    /** What a kind needs, in a few words, or undefined when it works anywhere. */
+    function needLabel(t, id) {
+      const need = NEEDS[id]
+      if (need === undefined) return undefined
+      return need.extension !== undefined ? t(`ext.short.${need.extension}`) : t(`protocol.format.${need.format}`)
     }
 
     function problemText(t, problem) {
@@ -2025,38 +2164,58 @@ window.__ModuleLoader__.load({
               h('input', { id: idp('note'), className: 'rp-input', value: rule.note ?? '', maxLength: ui.limits.note, placeholder: t('card.notePlaceholder'), onChange: event => edit((r) => { if (event.target.value === '') delete r.note; else r.note = event.target.value }) }))) : null) : null)
     }
 
-    /** The kinds of parameter to add, as tiles on an empty page or as items of the Add menu. */
-    function AddChoices({ ui, channel, onPick, tiles }) {
+    /**
+     * The kinds of parameter to add, as tiles on an empty page or as items of the Add menu. Kinds the channel's protocol
+     * says it does not read sit under a fold, each with what it needs.
+     */
+    function AddChoices({ ui, channel, protocol, onPick, tiles }) {
       const { t } = ui
-      const { presets, recipes } = choicesFor(channel)
-      const entry = (id, key, icon) => {
+      const [showOther, setShowOther] = React.useState(false)
+      const { presets, recipes, other } = choicesFor(channel, protocol)
+      const entry = (id, folded) => {
+        const recipe = id.startsWith('recipe:')
+        const key = recipe ? `recipe.${id.slice('recipe:'.length)}` : `preset.${id}`
+        // Outside a channel the badge says which gateway a kind is for; under the fold, what the channel lacks.
+        const need = (channel === undefined && !recipe) || folded ? needLabel(t, id) : undefined
         const content = [
-          h('span', { key: 'icon', className: 'rp-typeicon' }, h(Icon, { name: icon })),
+          h('span', { key: 'icon', className: 'rp-typeicon' }, h(Icon, { name: recipe ? 'book' : TYPE_ICON[id] })),
           h('span', { key: 'text', className: 'rp-tiletext' },
-            h('span', { className: 'rp-tilename' }, t(`${key}.name`), channel === undefined && OPENROUTER_ONLY.has(id) ? h('span', { className: 'rp-badge' }, t('add.openrouter')) : null),
+            h('span', { className: 'rp-tilename' }, t(`${key}.name`), need === undefined ? null : h('span', { className: 'rp-badge' }, folded ? t('needs', { what: need }) : need)),
             h('span', { className: 'rp-tiledesc' }, t(`${key}.desc`)))]
         return tiles
           ? h('button', { key: id, type: 'button', className: 'rp-tile', onClick: () => onPick(id) }, content)
           : h('button', { key: id, type: 'button', role: 'menuitem', className: 'rp-menuitem', onClick: () => onPick(id) }, content)
       }
-      const presetItems = presets.map(id => entry(id, `preset.${id}`, TYPE_ICON[id]))
-      const recipeItems = recipes.map(id => entry(`recipe:${id}`, `recipe.${id}`, 'book'))
+      const presetItems = presets.map(id => entry(id, false))
+      const recipeItems = recipes.map(id => entry(id, false))
+      const otherItems = showOther ? other.map(id => entry(id, true)) : []
+      const fold = other.length === 0 ? null : h('button', {
+        key: 'fold', type: 'button', className: tiles ? 'rp-link rp-fold' : 'rp-menuitem rp-fold', role: tiles ? undefined : 'menuitem', 'aria-expanded': showOther,
+        onClick: () => setShowOther(!showOther),
+      }, h(Icon, { name: 'chevron', size: 12 }), t('add.other', { n: other.length }))
       if (tiles) {
         return h(React.Fragment, null,
-          h('div', { className: 'rp-tiles' }, presetItems),
+          presetItems.length === 0 ? null : h('div', { className: 'rp-tiles' }, presetItems),
           recipeItems.length === 0 ? null : h('div', { className: 'rp-grouplabel' }, t('add.recipes')),
-          recipeItems.length === 0 ? null : h('div', { className: 'rp-tiles' }, recipeItems))
+          recipeItems.length === 0 ? null : h('div', { className: 'rp-tiles' }, recipeItems),
+          fold,
+          showOther ? h('div', { className: 'rp-hint' }, t('add.otherHint')) : null,
+          showOther ? h('div', { className: 'rp-tiles' }, otherItems) : null)
       }
       return h(React.Fragment, null, presetItems, recipeItems.length === 0 ? null : [
         h('div', { key: 'sep', className: 'rp-menusep', role: 'separator' }),
         h('div', { key: 'label', className: 'rp-menulabel' }, t('add.recipes')),
         ...recipeItems,
+      ], other.length === 0 ? null : [
+        h('div', { key: 'sep2', className: 'rp-menusep', role: 'separator' }),
+        fold,
+        ...otherItems,
       ])
     }
 
-    function AddMenu({ ui, channel, onPick }) {
+    function AddMenu({ ui, channel, protocol, onPick }) {
       const { t } = ui
-      return h(Popover, { label: t('detail.add'), className: 'rp-btn', trigger: [h(Icon, { key: 'i', name: 'plus', size: 14 }), h('span', { key: 't' }, t('detail.add'))], wide: true }, close => h(AddChoices, { ui, channel, onPick: (id) => { close(); onPick(id) } }))
+      return h(Popover, { label: t('detail.add'), className: 'rp-btn', trigger: [h(Icon, { key: 'i', name: 'plus', size: 14 }), h('span', { key: 't' }, t('detail.add'))], wide: true }, close => h(AddChoices, { ui, channel, protocol, onPick: (id) => { close(); onPick(id) } }))
     }
 
     /**
@@ -2181,12 +2340,57 @@ window.__ModuleLoader__.load({
     }
 
     /** The empty state of a page that can take parameters: what it is, and the kinds to start from. */
-    function EmptyAdd({ ui, title, body, channel, onPick }) {
+    function EmptyAdd({ ui, title, body, channel, protocol, onPick }) {
       return h('div', { className: 'rp-empty' },
         h('div', { className: 'rp-emptyhead' },
           title === undefined ? null : h('div', { className: 'rp-emptytitle' }, title),
           h('div', { className: 'rp-hint' }, body)),
-        h(AddChoices, { ui, channel, onPick, tiles: true }))
+        h(AddChoices, { ui, channel, protocol, onPick, tiles: true }))
+    }
+
+    /** A protocol in a few words: its format and its extensions. */
+    function protocolText(t, protocol) {
+      const format = t(`protocol.format.${protocol.format ?? 'unknown'}`)
+      const extensions = protocol.extensions.length === 0 ? t('protocol.noExtensions') : protocol.extensions.map(id => t(`ext.short.${id}`)).join(t('listSeparator'))
+      return `${format} · ${extensions}`
+    }
+
+    /**
+     * What a channel's endpoint understands, as worked out from dsh, and the user's declaration over it. A change goes
+     * into the draft with the parameters; choosing what dsh worked out removes the declaration for that part.
+     */
+    function ProtocolEditor({ ui, channel, protocol, onClose }) {
+      const { t } = ui
+      const ref = usePanelFocus()
+      const detected = channel.detected ?? { extensions: [] }
+      const change = edit => ui.setProtocol(channel.key, edit)
+      const setFormat = value => change((entry) => { if (value === '') delete entry.format; else entry.format = value })
+      const setExtension = (id, on) => change((entry) => {
+        const overrides = { ...entry.extensions }
+        if (on === detected.extensions.includes(id)) delete overrides[id]
+        else overrides[id] = on
+        if (Object.keys(overrides).length === 0) delete entry.extensions
+        else entry.extensions = Object.fromEntries(EXTENSIONS.filter(item => item in overrides).map(item => [item, overrides[item]]))
+      })
+      const declared = ui.draft.protocols?.[channel.key]
+      return h('div', { className: 'rp-panel', ref, tabIndex: -1, role: 'group', 'aria-label': t('protocol.title'), onKeyDown: onEscape(onClose) },
+        h('div', { className: 'rp-bar' },
+          h('strong', { className: 'rp-grow' }, t('protocol.title')),
+          h('button', { type: 'button', className: 'rp-btn is-ghost is-icon', 'aria-label': t('close'), title: t('close'), onClick: onClose }, h(Icon, { name: 'x' }))),
+        h('div', { className: 'rp-hint' }, t('protocol.hint')),
+        h('div', { className: 'rp-rows' },
+          h(Row, { label: t('protocol.formatLabel'), htmlFor: `rp-proto-${channel.id}` },
+            h('select', { id: `rp-proto-${channel.id}`, className: 'rp-input rp-select', value: declared?.format ?? '', onChange: event => setFormat(event.target.value) },
+              h('option', { value: '' }, t('protocol.formatAuto', { format: t(`protocol.format.${detected.format ?? 'unknown'}`) })),
+              FORMATS.map(format => h('option', { key: format, value: format }, t(`protocol.format.${format}`))))),
+          h(Row, { label: t('protocol.extensionsLabel') },
+            h('div', { className: 'rp-checks' }, EXTENSIONS.map(id => h(Check, {
+              key: id, checked: protocol.extensions.includes(id), onChange: on => setExtension(id, on),
+              hint: detected.extensions.includes(id) ? t('protocol.detectedTag') : undefined,
+            }, t(`ext.${id}`)))))),
+        h('div', { className: 'rp-bar rp-end' },
+          protocol.declared ? h('button', { type: 'button', className: 'rp-btn', onClick: () => change((entry) => { delete entry.format; delete entry.extensions }) }, t('protocol.reset')) : null,
+          h('button', { type: 'button', className: 'rp-btn is-primary', onClick: onClose }, t('protocol.done'))))
     }
 
     /** The cards of the parameters on one page, in the order they apply. */
@@ -2207,6 +2411,8 @@ window.__ModuleLoader__.load({
       const options = [...new Set([...mine.map(entry => entry.model).filter(model => typeof model === 'string'), ...exact, ...channel.models.map(model => model.id)])].slice(0, 300)
       // Without a model from requests or parameters, a DeepSeek model is the likeliest one to preview.
       const [model, setModel] = React.useState(() => (mine.length > 0 || exact.length > 0 ? options[0] : options.find(id => /^deepseek[/-]/i.test(id)) ?? options.find(id => /deepseek/i.test(id)) ?? options[0]) ?? '')
+      const [editing, setEditing] = React.useState(false)
+      const protocol = protocolOf(channel, ui.draft.protocols)
       const onPick = id => ui.addFromPreset(id, channel)
       return h('div', { className: 'rp-detail' },
         h('div', { className: 'rp-dhead' },
@@ -2215,11 +2421,16 @@ window.__ModuleLoader__.load({
             h('div', { className: 'rp-dsub' },
               channel.host === undefined ? null : h('span', { className: 'rp-url', title: t(`channels.source.${channel.source}`) }, `${channel.host}${channel.basePath}`),
               channel.name === channel.id ? null : h('span', null, channel.id),
-              channel.modelCount === 0 ? null : h('span', null, pl(t, 'channels.models', channel.modelCount)))),
-          own.length === 0 || channel.host === undefined ? null : h(AddMenu, { ui, channel, onPick })),
+              channel.modelCount === 0 ? null : h('span', null, pl(t, 'channels.models', channel.modelCount))),
+            channel.key === undefined ? null : h('div', { className: 'rp-dsub rp-protocol' },
+              h('span', null, t('protocol.line', { text: protocolText(t, protocol) })),
+              h('span', { className: 'rp-dim' }, t(protocol.declared ? 'protocol.declared' : 'protocol.auto')),
+              h('button', { type: 'button', className: 'rp-link', 'aria-expanded': editing, onClick: () => setEditing(!editing) }, t('protocol.edit')))),
+          own.length === 0 || channel.host === undefined ? null : h(AddMenu, { ui, channel, protocol, onPick })),
+        editing && channel.key !== undefined ? h(ProtocolEditor, { ui, channel, protocol, onClose: () => setEditing(false) }) : null,
         channel.modelsError === undefined ? null : h('div', { className: 'rp-hint is-warn' }, t('channels.modelsError', { reason: channel.modelsError })),
         channel.host === undefined ? h('div', { className: 'rp-note' }, t('channels.noHost'))
-          : own.length === 0 ? h(EmptyAdd, { ui, title: t('detail.emptyTitle'), body: t('detail.emptyBody'), channel, onPick })
+          : own.length === 0 ? h(EmptyAdd, { ui, title: t('detail.emptyTitle'), body: t('detail.emptyBody'), channel, protocol, onPick })
             : h(React.Fragment, null,
               h(Preview, { ui, channel, path: requestPathOf(channel, mine), model, setModel, options, dirty, enabled }),
               h(CardList, { ui, rules: own, channel, problemsBy, openIds, model, env, providers, names }),
@@ -2379,7 +2590,7 @@ window.__ModuleLoader__.load({
         const config = Array.isArray(value) ? { rules: value } : value
         setState({ kind: 'loading' })
         post('check', { config }).then(
-          checked => setState(checked.config.rules.length === 0 ? { kind: 'empty' } : { kind: 'ok', checked }),
+          checked => setState(checked.config.rules.length === 0 && Object.keys(checked.config.protocols).length === 0 ? { kind: 'empty' } : { kind: 'ok', checked }),
           error => setState({ kind: 'error', error }),
         )
       }
@@ -2607,10 +2818,10 @@ window.__ModuleLoader__.load({
         item({ key: 'try', icon: 'play', name: t('nav.try'), end: null }))
     }
 
-    /** Which page to open first: a channel that already has parameters, else OpenRouter, else any channel with an address. */
-    function firstSection(channels, rules) {
+    /** Which page to open first: a channel that already has parameters, else one that reads OpenRouter's fields, else any channel with an address. */
+    function firstSection(channels, rules, protocols) {
       const usable = channels.filter(channel => channel.host !== undefined)
-      const pick = usable.find(channel => rules.some(rule => reaches(rule, channel))) ?? usable.find(channel => channel.openrouter) ?? usable[0]
+      const pick = usable.find(channel => rules.some(rule => reaches(rule, channel))) ?? usable.find(channel => protocolOf(channel, protocols).extensions.includes('openrouter')) ?? usable[0]
       return pick === undefined ? 'other' : `c:${pick.id}`
     }
 
@@ -2711,8 +2922,7 @@ window.__ModuleLoader__.load({
           adopt(value)
           const stored = readStored('sessionStorage', DRAFT_KEY, null)
           const restore = !keepDraft && stored !== null && stored.revision === value.revision && stored.config !== null && typeof stored.config === 'object' && Array.isArray(stored.config.rules)
-          const fresh = { enabled: value.enabled, rules: clone(value.rules) }
-          setDraft(restore ? stored.config : fresh)
+          setDraft(restore ? { ...stored.config, protocols: stored.config.protocols ?? {} } : draftOf(value))
           if (restore) show({ kind: 'done', text: t('draftRestored') })
           setFailure(null)
         } catch (error) {
@@ -2732,7 +2942,7 @@ window.__ModuleLoader__.load({
         }
       }, [])
 
-      const dirty = server !== null && draft !== null && !same(draft, { enabled: server.enabled, rules: server.rules })
+      const dirty = server !== null && draft !== null && !same(draft, draftOf(server))
       dirtyRef.current = dirty
       React.useEffect(() => {
         if (server === null) return
@@ -2783,7 +2993,7 @@ window.__ModuleLoader__.load({
 
       // A remembered channel that is gone falls back to the first useful section once the channels are known.
       let current = sel
-      if (channels !== null && draft !== null && (current === null || (current.startsWith('c:') && !channelList.some(channel => `c:${channel.id}` === current)))) current = firstSection(channelList, draft.rules)
+      if (channels !== null && draft !== null && (current === null || (current.startsWith('c:') && !channelList.some(channel => `c:${channel.id}` === current)))) current = firstSection(channelList, draft.rules, draft.protocols)
       selRef.current = current
       const select = (next) => {
         setSel(next)
@@ -2791,6 +3001,15 @@ window.__ModuleLoader__.load({
       }
 
       const updateRule = (id, change) => setDraft(state => ({ ...state, rules: state.rules.map(rule => (rule.id === id ? change(clone(rule)) : rule)) }))
+      /** Change the declared protocol of an endpoint; `edit` changes a copy in place, and a declaration left empty is removed. */
+      const setProtocol = (key, edit) => setDraft((state) => {
+        const entry = clone(state.protocols[key] ?? {})
+        edit(entry)
+        const protocols = { ...state.protocols }
+        if (Object.keys(entry).length === 0) delete protocols[key]
+        else protocols[key] = { ...entry.format === undefined ? {} : { format: entry.format }, ...entry.extensions === undefined ? {} : { extensions: entry.extensions } }
+        return { ...state, protocols: sortedKeys(protocols) }
+      })
       const doneBuilding = id => setBuilding((state) => {
         const next = new Set(state)
         next.delete(id)
@@ -2917,7 +3136,7 @@ window.__ModuleLoader__.load({
         try {
           const value = await post('save', { config: draftRef.current, revision: overwrite === true ? null : server.revision })
           adopt(value)
-          setDraft({ enabled: value.enabled, rules: clone(value.rules) })
+          setDraft(draftOf(value))
           setConflict(false)
           show({ kind: 'done', text: t('saved') })
         } catch (error) {
@@ -2946,7 +3165,7 @@ window.__ModuleLoader__.load({
       }
       const discard = () => {
         stopBuilds()
-        setDraft({ enabled: server.enabled, rules: clone(server.rules) })
+        setDraft(draftOf(server))
         setConfirm(null)
       }
       /** Drop the unsaved edits and take what is on disk. */
@@ -2959,7 +3178,7 @@ window.__ModuleLoader__.load({
       }
       const toggleMaster = async (enabled) => {
         try {
-          const value = await post('save', { config: { enabled, rules: server.rules }, revision: server.revision })
+          const value = await post('save', { config: { enabled, rules: server.rules, protocols: server.protocols }, revision: server.revision })
           adopt(value)
           setDraft(state => ({ ...state, enabled }))
           show({ kind: 'done', text: t(enabled ? 'master.resumed' : 'master.pausedDone') })
@@ -2972,7 +3191,7 @@ window.__ModuleLoader__.load({
         try {
           const value = await post('resetDamaged', {})
           adopt(value)
-          setDraft({ enabled: value.enabled, rules: clone(value.rules) })
+          setDraft(draftOf(value))
           setConfirm(null)
           show({ kind: 'done', text: t('damaged.done', { path: value.movedTo }) })
         } catch (error) {
@@ -2988,7 +3207,7 @@ window.__ModuleLoader__.load({
       }
 
       const exportRules = () => {
-        const text = `${pretty({ version: 1, enabled: draft.enabled, rules: draft.rules })}\n`
+        const text = `${pretty({ version: 1, enabled: draft.enabled, rules: draft.rules, ...Object.keys(draft.protocols).length === 0 ? {} : { protocols: draft.protocols } })}\n`
         const link = document.createElement('a')
         link.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }))
         link.download = 'dsh-request-params-rules.json'
@@ -3005,7 +3224,9 @@ window.__ModuleLoader__.load({
             taken.add(id)
             return { ...rule, id }
           })
-          return { ...state, rules: mode === 'replace' ? incoming : [...state.rules, ...incoming].slice(0, server.limits.rules) }
+          // Declared protocols come along; on an append, an imported declaration replaces the one for the same endpoint.
+          const protocols = mode === 'replace' ? config.protocols : sortedKeys({ ...state.protocols, ...config.protocols })
+          return { ...state, rules: mode === 'replace' ? incoming : [...state.rules, ...incoming].slice(0, server.limits.rules), protocols }
         })
         setPanel(null)
         show({ kind: 'done', text: t('import.applied') })
@@ -3028,7 +3249,7 @@ window.__ModuleLoader__.load({
         limits: server?.limits,
         endpoints: recent.endpoints,
         channels: channelList,
-        updateRule, setForm, deleteRule, duplicateRule, swapRules, ruleForEndpoint, dryRun, addFromPreset, select,
+        updateRule, setProtocol, setForm, deleteRule, duplicateRule, swapRules, ruleForEndpoint, dryRun, addFromPreset, select,
         toggleOpen: id => setOpenIds(ids => (ids.includes(id) ? ids.filter(item => item !== id) : [...ids, id])),
       }
 

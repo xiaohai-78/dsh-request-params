@@ -18,7 +18,7 @@ async function withStore(run) {
 const rule = fields => normalizeRule({ id: 'r1', name: 'one', match: { hosts: ['openrouter.ai'] }, ...fields })
 
 test('starts empty, saves atomically, and reads back what it saved', () => withStore(async (store) => {
-  assert.deepEqual(await store.read(), { revision: 0, config: { enabled: true, rules: [] } })
+  assert.deepEqual(await store.read(), { revision: 0, config: { enabled: true, rules: [], protocols: {} } })
   const saved = await store.save({ enabled: false, rules: [rule({ body: { merge: { a: 1 } } })] })
   assert.equal(saved.revision, 1)
   const read = await store.read()

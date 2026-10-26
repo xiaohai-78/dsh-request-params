@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **What a channel reads**: each channel shows its protocol under its address: the request format it reads (OpenAI or Anthropic) and the extra fields it reads on top (OpenRouter, vLLM, OpenAI, Helicone, Cloudflare AI Gateway). It is worked out from the route's `api` setting, the official DeepSeek routes, the hosted service's address, and the requests seen, and **Change** corrects it; the setting is kept in the rules file under `protocols`, keyed by host and base path. A gateway of your own that speaks OpenRouter's protocol gets provider routing, reasoning effort, and app attribution by ticking **OpenRouter fields**.
+- Each kind of parameter says what it needs. A channel offers first the kinds it reads, most specific first; the rest are under **Other kinds**, marked with what they need, instead of being left out. Gateway examples come first only on a channel that is that gateway.
+- The OpenRouter catalog's hints (which providers serve a model, and a provider list that would fail) count as facts only for openrouter.ai; for any other gateway they are labelled as a reference and no longer warn that requests will fail.
+
 ## 0.2.1 (2026-10-23)
 
 - An upgrade no longer stays marked as installing when the note it leaves in `settings.json` cannot be written, or when DSH's installer throws instead of failing: the note is skipped with a warning in the log and the install goes ahead, and an installer that throws ends the upgrade as failed, so it can be tried again.

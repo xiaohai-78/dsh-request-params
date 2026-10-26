@@ -51,6 +51,7 @@
     "openrouter.js",
     "openrouter-providers.json",
     "channels.js",
+    "protocols.js",
     "config-store.js",
     "fs-retry.js",
     "client.js",

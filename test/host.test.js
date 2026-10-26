@@ -241,9 +241,9 @@ test('lists the configured channels, with endpoints from settings and from reque
     await host.send({ model: 'm', messages: [] })
     const { value } = await host.call({ action: 'channels' })
     assert.equal(value.available, true)
-    assert.deepEqual(value.channels.map(channel => [channel.id, channel.host, channel.source, channel.seen, channel.openrouter]), [
-      ['openrouter', 'openrouter.ai', 'default', false, true],
-      ['gw', 'gateway.example', 'settings', true, false],
+    assert.deepEqual(value.channels.map(channel => [channel.id, channel.host, channel.source, channel.seen, channel.detected.extensions]), [
+      ['openrouter', 'openrouter.ai', 'default', false, ['openrouter']],
+      ['gw', 'gateway.example', 'settings', true, []],
     ])
   } finally {
     await host.stop()

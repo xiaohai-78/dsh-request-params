@@ -43,7 +43,7 @@ export class ConfigStore {
   }
 
   /**
-   * @returns {Promise<{ revision: number, config: { enabled: boolean, rules: object[] } }>} the stored rules, or an
+   * @returns {Promise<{ revision: number, config: { enabled: boolean, rules: object[], protocols: object } }>} the stored rules, or an
    *   empty configuration at revision 0 when there is no file.
    * @throws {ConfigFileError} when the file exists but is not a JSON object or is too large.
    */
@@ -52,7 +52,7 @@ export class ConfigStore {
     try {
       text = await readFile(this.path, 'utf8')
     } catch (error) {
-      if (error?.code === 'ENOENT') return { revision: 0, config: { enabled: true, rules: [] } }
+      if (error?.code === 'ENOENT') return { revision: 0, config: { enabled: true, rules: [], protocols: {} } }
       throw new ConfigFileError(this.path, error)
     }
     if (text.length > MAX_BYTES) throw new ConfigFileError(this.path, 'larger than 4 MB')
@@ -68,7 +68,7 @@ export class ConfigStore {
 
   /**
    * Replace the rules.
-   * @param {{ enabled: boolean, rules: object[] }} config - the new configuration.
+   * @param {{ enabled: boolean, rules: object[], protocols?: object }} config - the new configuration.
    * @param {number} [expectedRevision] - the revision the caller last read; omit to overwrite.
    * @returns {Promise<{ revision: number, config: object }>} what is on disk now.
    * @throws {ConflictError} when `expectedRevision` is not the current one.

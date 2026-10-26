@@ -11,6 +11,7 @@
  * cannot be set at all.
  */
 import { createHash } from 'node:crypto'
+import { normalizeProtocols } from './protocols.js'
 
 /** Top-level body fields that carry the conversation or its framing; a rule needs `allowProtected` to touch them. */
 export const PROTECTED_BODY = new Set(['messages', 'system', 'tools', 'tool_choice', 'input', 'instructions', 'prompt', 'contents', 'stream', 'model'])
@@ -76,7 +77,9 @@ function text(value) {
 /**
  * Read a configuration from stored or pasted JSON: keep what is valid, drop what is not.
  * @param {unknown} raw - the parsed JSON.
- * @returns {{ enabled: boolean, rules: Rule[] }} the configuration with every field in its expected form.
+ * @returns {{ enabled: boolean, rules: Rule[], protocols: Record<string, object> }} the configuration with every field in
+ *   its expected form; `protocols` holds what the user declared each endpoint understands (protocols.js), which only the
+ *   page reads.
  */
 export function normalizeConfig(raw) {
   const source = isObject(raw) ? raw : {}
@@ -89,7 +92,7 @@ export function normalizeConfig(raw) {
     seen.add(rule.id)
     rules.push(rule)
   }
-  return { enabled: source.enabled !== false, rules }
+  return { enabled: source.enabled !== false, rules, protocols: normalizeProtocols(source.protocols) }
 }
 
 /**

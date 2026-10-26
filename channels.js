@@ -6,8 +6,10 @@
  * order, from the `baseURL` the user set for the route (the `settings` service holds it at the place the configurable
  * provider directory names), from the route's catalog default (`defaultBaseURL`), and for the official DeepSeek routes,
  * which have no catalog default, from `$DEEPSEEK_BASE_URL` or the public endpoint, as llm-deepseek does. Requests the
- * plugin has seen confirm the endpoint, and supply it when nothing else does.
+ * plugin has seen confirm the endpoint, and supply it when nothing else does. What each endpoint understands is worked
+ * out in protocols.js.
  */
+import { detectProtocol, endpointKey } from './protocols.js'
 
 /** The official DeepSeek route's public endpoint, used when neither its settings nor the environment name one. */
 export const DEEPSEEK_PUBLIC_BASE_URL = 'https://api.deepseek.com/anthropic'
@@ -47,35 +49,19 @@ function basePathOf(url) {
 }
 
 /**
- * The request format a route sends: its `api` setting (`anthropic-messages`, `openai-completions`, …) when it has one,
- * Anthropic Messages for the official DeepSeek routes, OpenAI Chat Completions for OpenRouter, else the paths of the
- * requests seen. `other` is an `api` of another family; undefined means unknown.
- * @param {{ api: unknown, official: boolean, openrouter: boolean, paths: string[] }} facts - what is known of the route.
- * @returns {'anthropic' | 'openai' | 'other' | undefined} the format.
- */
-function formatOf({ api, official, openrouter, paths }) {
-  if (typeof api === 'string' && api !== '') return api.startsWith('anthropic') ? 'anthropic' : api.startsWith('openai') ? 'openai' : 'other'
-  if (official) return 'anthropic'
-  if (openrouter) return 'openai'
-  if (paths.some(path => /\/(?:chat\/completions|responses)$/.test(path))) return 'openai'
-  if (paths.some(path => /\/messages$/.test(path))) return 'anthropic'
-  return undefined
-}
-
-/**
  * Describe the configured channels.
  * @param {{ providers: { id: string, name: string }[], directory: object[], descriptors: { ns: string, value: unknown }[],
  *   models: Map<string, { id: string, name: string }[] | Error>, endpoints: { scheme?: string, host: string, path: string,
  *   models: string[] }[], env: Record<string, string | undefined> }} input - the live routes, the configurable provider
  *   directory, the settings forms, each route's models (or the error listing them), the endpoints the plugin has seen,
  *   and the environment.
- * @returns {{ id: string, name: string, baseURL?: string, host?: string, basePath?: string, source: 'settings' | 'default'
- *   | 'environment' | 'seen' | 'unknown', seen: boolean, sharedHost: boolean, sameEndpoint: boolean, openrouter: boolean,
- *   format?: 'anthropic' | 'openai' | 'other', models: { id: string, name: string }[], modelCount: number, modelsError?: string }[]} one
- *   entry per live route, in the service's order. `source` says where the endpoint came from, `seen` whether a request to it was logged,
- *   `format` the request format it sends when that is known ({@link formatOf}), `sharedHost` whether another channel sends to the same
- *   host (a rule then needs the base path to tell them apart), and `sameEndpoint` whether one sends to the same base URL
- *   too (only the models can tell them apart then).
+ * @returns {{ id: string, name: string, baseURL?: string, host?: string, basePath?: string, key?: string, source: 'settings'
+ *   | 'default' | 'environment' | 'seen' | 'unknown', seen: boolean, detected: { format?: string, extensions: string[] },
+ *   sharedHost: boolean, sameEndpoint: boolean, models: { id: string, name: string }[], modelCount: number, modelsError?: string }[]}
+ *   one entry per live route, in the service's order. `source` says where the endpoint came from, `key` is the endpoint's
+ *   key for a declared protocol, `seen` whether a request to it was logged, `detected` what it understands as far as dsh
+ *   tells (protocols.js), `sharedHost` whether another channel sends to the same host (a rule then needs the base path to
+ *   tell them apart), and `sameEndpoint` whether one sends to the same base URL too (only the models can tell them apart then).
  */
 export function describeChannels({ providers, directory, descriptors, models, endpoints, env }) {
   const settingsOf = ns => descriptors.find(descriptor => descriptor.ns === ns)?.value
@@ -106,16 +92,13 @@ export function describeChannels({ providers, directory, descriptors, models, en
       source = 'seen'
     }
     const reached = url === undefined ? [] : seenAt.filter(endpoint => endpoint.host === url.host && endpoint.path.startsWith(basePathOf(url)))
-    const openrouter = url !== undefined && (url.hostname === 'openrouter.ai' || url.hostname.endsWith('.openrouter.ai'))
-    const format = formatOf({ api, official, openrouter, paths: reached.map(endpoint => endpoint.path) })
     return {
       id: provider.id,
       name: typeof provider.name === 'string' && provider.name !== '' ? provider.name : provider.id,
-      ...url === undefined ? {} : { baseURL: url.href, host: url.host, basePath: basePathOf(url) },
+      ...url === undefined ? {} : { baseURL: url.href, host: url.host, basePath: basePathOf(url), key: endpointKey(url) },
       source,
       seen: reached.length > 0,
-      openrouter,
-      ...format === undefined ? {} : { format },
+      detected: detectProtocol({ api, official, url, paths: reached.map(endpoint => endpoint.path) }),
       models: modelList,
       modelCount: Array.isArray(listed) ? listed.length : 0,
       ...listed instanceof Error ? { modelsError: listed.message } : {},

@@ -17,6 +17,7 @@ dsh 只发它的模型适配器认识的字段。而 [OpenRouter](https://openro
 ## 亮点
 
 - **按渠道管理。** 页面列出 dsh 里已经配好的模型渠道（官方 DeepSeek 路线，以及 `llm-pi-ai` 的每条路线）和各自发往的地址。打开一个渠道，就能看到它的参数，点一下就能加，自动对准这个渠道。其他地址的参数放在「**其他地址**」。
+- **知道每个渠道认什么。** 每个渠道都标出它认哪种请求格式（OpenAI 或 Anthropic）和哪些额外字段（OpenRouter 的 `provider`、`reasoning`，vLLM 的 `chat_template_kwargs` 等），根据 dsh 的设置和它的地址自动识别。它认的参数种类排在前面，其余收在「**其他种类**」里。公司自建、兼容 OpenRouter 协议的中转，勾上「OpenRouter 扩展」就能用供应商路由。
 - **发出前就知道会发什么。** 「**发送时加上**」用 JSON 显示这个渠道的参数会给所选模型的请求加上什么，包括还没保存的修改。什么都不会发出去。
 - **选供应商，不用手写 JSON。** 「**供应商路由**」就是一份列表：搜索供应商（提供正在预览的模型的排在前面，带价格和可用率），排好顺序，决定能不能换用其他供应商，排除一些，排序方式，要求零数据留存，加备用模型；价格上限、量化精度、白名单、速度偏好在「**更多条件**」里。不提供该模型的供应商会被标出来；会导致 "No endpoints found" 失败的组合，保存前就会提醒。
 - **发出后看发生了什么。** 每个渠道都列出它的最近请求：状态、加上了什么，网关拒绝时还有它的原话。「**请求记录**」里是 dsh 发出的所有模型请求。
@@ -84,14 +85,23 @@ dsh plugin --profile web add dsh-request-params
 | **删除字段** | 删掉 `store` 之类的字段 | 网关不认 dsh 发的某个字段 |
 | **自定义字段和请求头** | 随便：JSON 字段、请求头、删除 | 其他任何网关 |
 
-OpenRouter 渠道可以加所有种类。其他渠道只列出不限于 OpenRouter 的种类，外加其他网关的示例：自建 vLLM 关闭思考（`chat_template_kwargs`）、Helicone 请求头、Cloudflare AI Gateway 缓存请求头、OpenAI 的 `prompt_cache_key`。其中会往请求体里加字段的两个（vLLM 和 `prompt_cache_key`），在已知发 Anthropic Messages 请求的渠道上不列出，比如官方 DeepSeek 渠道，或 `api` 设为 `anthropic-messages` 的渠道。示例创建出来就是一项普通的自定义参数，随便改。「其他地址」里所有种类都有。
+一个渠道先列出哪些种类，取决于它认什么（见下面的「渠道认哪些字段」）。OpenRouter 渠道列出所有种类；认 OpenAI 格式的渠道列出采样参数、自定义字段、会话粘性和删除字段；Anthropic 渠道列出后三种。其他网关的示例（自建 vLLM 用 `chat_template_kwargs` 关闭思考、Helicone 请求头、Cloudflare AI Gateway 缓存请求头、OpenAI 的 `prompt_cache_key`）在对应的网关渠道上排在前面。其余的都在「其他种类」里，各自标出需要什么，照样可以添加。示例创建出来就是一项普通的自定义参数，随便改。「其他地址」里所有种类都有。
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/add-dark-zh.png">
-    <img alt="一个还没有参数的渠道：适用于它的参数种类，以及常见网关的示例" src="docs/screenshots/add-light-zh.png" width="860">
+    <img alt="一个还没有参数的 Anthropic 渠道：协议那一行、它认的三种参数，以及展开的「其他种类」，每种都标出需要什么" src="docs/screenshots/add-light-zh.png" width="860">
   </picture>
 </p>
+
+## 渠道认哪些字段
+
+每个渠道的地址下面会写出它的协议：它认哪种请求格式，以及在格式之外还认哪些额外字段。
+
+- **自动识别**：格式来自 `llm-pi-ai` 里这条路线的 `api` 设置（`openai-completions`、`anthropic-messages` 等）、官方 DeepSeek 路线（Anthropic）、托管服务本身，或者看到过的请求路径。托管服务按地址识别：openrouter.ai（OpenRouter 扩展）、helicone.ai、gateway.ai.cloudflare.com、api.openai.com。
+- **可以手动改**：点「修改」设定格式、勾选它认的字段。最常见的是公司自建、兼容 OpenRouter 协议的中转：勾上「OpenRouter 扩展」，这个渠道上供应商路由、思考强度、应用署名就会排到前面。设置和参数一起保存，按地址（主机加基础路径）记录；点「恢复自动识别」可以去掉。
+- **它改变什么**：只影响哪些种类排在前面、目录提示有多确定。不管协议怎么写，请求都按参数原样发出。
+- **目录提示**：供应商列表和「是否提供该模型」来自 OpenRouter 公开目录。参数发往 openrouter.ai 时，如果列出的供应商都不提供正在预览的模型，保存前就会提醒。发往其他网关时，这些提示只作参考：供应商名以你的网关为准，可以直接输入。
 
 ## 自己写参数
 
@@ -145,14 +155,18 @@ OpenRouter 渠道可以加所有种类。其他渠道只列出不限于 OpenRout
       "headers": { "set": { "X-OpenRouter-Title": "My App" }, "remove": [] },
       "allowProtected": false
     }
-  ]
+  ],
+  "protocols": {
+    "llm.company.example/api/v1": { "format": "openai", "extensions": { "openrouter": true } }
+  }
 }
 ```
 
 - `revision` 记录保存次数。页面要覆盖更新的版本时会被拦下，让你选择怎么办。
 - 规则还可以带 `note`（备注）和 `preset`（`{ "id", "form" }`，页面重新打开的表单）。如果 `preset` 生成的内容和这条规则的 `body`、`headers` 不再一致，`preset` 会被去掉，规则作为自定义规则保留。
 - 读文件时，页面不认识的字段、类型不对的值会被丢掉。不是合法 JSON 的文件会在页面上报出来，原样不动；点「移开并重新开始」会把它改名留作备份。
-- 「导出」写出的是同样的对象，只是没有 `revision`。「导入」接受这种对象，也接受单独的规则数组。
+- `protocols` 记录你给每个地址设定的协议，键是主机加基础路径：`format`（`openai`、`anthropic` 或 `other`）和 `extensions`（`openrouter`、`vllm`、`openai`、`helicone`、`cloudflare`），各为 true 或 false；false 表示去掉自动识别出的那一项。只有页面读它。
+- 「导出」写出的是同样的对象，只是没有 `revision`。「导入」接受这种对象，也接受单独的规则数组；选「追加到现有参数」时，导入的协议会替换同一地址原有的设置。
 
 ## 工作原理
 
@@ -203,7 +217,8 @@ dsh plugin --profile web remove dsh-request-params
 | `interceptor.js` | `fetch` 包装和请求日志 |
 | `presets.js` | 预设表单，以及它们生成的规则 |
 | `config-store.js` | 规则文件：原子写入、版本检查 |
-| `channels.js` | 从 dsh 的 `llm` 和 `settings` 服务读取已配置的渠道，算出每个渠道的地址 |
+| `channels.js` | 从 dsh 的 `llm` 和 `settings` 服务读取已配置的渠道，算出每个渠道的地址和协议 |
+| `protocols.js` | 地址认哪些字段：格式和扩展的清单，根据路线设置和地址自动识别，以及读取规则文件里设定的协议 |
 | `update.js` | 不依赖 DSH 服务的版本检查工具：版本比较、配置依赖这个包的方式、要询问的源，以及核对源给的压缩包地址确实是那个源上这个包的文件 |
 | `self-update.js` | 更新相关的动作：带 12 小时缓存的检查，`<profile>/.dsh-request-params/settings.json` 里的开关和升级留下的记录，以及通过 DSH 插件管理器安装（`installBundle`、`cancelInstall`、`plugin-manager/install-state` 进度） |
 | `openrouter.js` | OpenRouter 目录客户端，带缓存和离线兜底；`openrouter-providers.json` 是自带的供应商列表 |
@@ -216,7 +231,7 @@ dsh plugin --profile web remove dsh-request-params
 npm test
 ```
 
-用 `node --test` 跑 111 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、读取已配置的渠道、宿主的各个动作、页面把参数和请求对应到渠道的逻辑以及预览和概括，检查更新和升级、包里是否带上了代码引用的每个模块，还有页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、按渠道加参数并在实际发出的请求里看到、预览、供应商搜索和「不提供该模型」提示、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏/手机宽度布局。更新在 dsh 0.2.1-rc.2 上对着真实的 npm 源检查过：标成 0.0.9 的副本发现了 0.1.0，「升级…」通过 DSH 的安装器装上了它，配置随后依赖 0.1.0 的压缩包，新版本不用重启就换上了；再装一次同一个版本，会提示已经装好、重启后生效。本文的截图就来自这套环境；里面的 OpenRouter 目录是 OpenRouter 公开的那份，没有向 OpenRouter 发过请求。
+用 `node --test` 跑 118 个测试：规则引擎、`fetch` 包装（链式安全、字符串/字节/`Request` 三种请求体、错误记录）、预设、规则文件、目录客户端、读取已配置的渠道和它们认哪些字段、宿主的各个动作、页面把参数和请求对应到渠道的逻辑、按协议列出哪些种类，以及预览和概括，检查更新和升级、包里是否带上了代码引用的每个模块，还有页面的中英文文案是否一一对应。页面和这个入口还在真实的 dsh 进程里配合本地模拟模型服务做过端到端检查：上面三条路线、按渠道加参数并在实际发出的请求里看到、给兼容 OpenAI 的中转勾上 OpenRouter 扩展后中转收到了供应商路由、预览、供应商搜索和「不提供该模型」提示、保存、暂停、撤销、导入导出、规则文件在别处被改、浅色/深色/窄屏/手机宽度布局。更新在 dsh 0.2.1-rc.2 上对着真实的 npm 源检查过：标成 0.0.9 的副本发现了 0.1.0，「升级…」通过 DSH 的安装器装上了它，配置随后依赖 0.1.0 的压缩包，新版本不用重启就换上了；再装一次同一个版本，会提示已经装好、重启后生效。本文的截图就来自这套环境；里面的 OpenRouter 目录是 OpenRouter 公开的那份，没有向 OpenRouter 发过请求。
 
 ## 更新记录
 

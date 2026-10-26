@@ -14,7 +14,7 @@ test('takes the endpoint a user set over the catalog default', () => {
   }))
   assert.deepEqual(channel, {
     id: 'openrouter', name: 'OpenRouter', baseURL: 'https://proxy.example.com:8443/or/v1/', host: 'proxy.example.com:8443', basePath: '/or/v1',
-    source: 'settings', seen: false, openrouter: false, models: [{ id: 'deepseek/deepseek-chat', name: 'DeepSeek' }], modelCount: 1, sharedHost: false, sameEndpoint: false,
+    key: 'proxy.example.com:8443/or/v1', source: 'settings', seen: false, detected: { extensions: [] }, models: [{ id: 'deepseek/deepseek-chat', name: 'DeepSeek' }], modelCount: 1, sharedHost: false, sameEndpoint: false,
   })
 })
 
@@ -27,7 +27,7 @@ test('falls back to the catalog default and marks OpenRouter', () => {
   assert.equal(channel.source, 'default')
   assert.equal(channel.host, 'openrouter.ai')
   assert.equal(channel.basePath, '/api/v1')
-  assert.equal(channel.openrouter, true)
+  assert.deepEqual(channel.detected, { format: 'openai', extensions: ['openrouter'] })
 })
 
 test('finds the official DeepSeek endpoint in its own settings, then the environment, then the public API', () => {
@@ -68,7 +68,7 @@ test('confirms an endpoint from logged requests, and uses one when nothing else 
   assert.deepEqual([azure.source, azure.host, azure.seen], ['seen', 'res.openai.azure.com', true])
 })
 
-test('tells the request format from the api setting, the official route, OpenRouter, or the requests seen', () => {
+test('works out what each channel understands from its api setting, the official route, its host, or the requests seen', () => {
   const channels = describeChannels(input({
     providers: ['gateway', 'vllm', 'gemini', 'deepseek-official', 'openrouter', 'seen-oa', 'seen-ant', 'mystery'].map(id => ({ id, name: id })),
     directory: [
@@ -90,7 +90,7 @@ test('tells the request format from the api setting, the official route, OpenRou
       { scheme: 'http', host: '10.0.0.5', path: '/v1/messages', models: ['ant'] },
     ],
   }))
-  assert.deepEqual(Object.fromEntries(channels.map(channel => [channel.id, channel.format])), {
+  assert.deepEqual(Object.fromEntries(channels.map(channel => [channel.id, channel.detected.format])), {
     'gateway': 'anthropic', 'vllm': 'openai', 'gemini': 'other', 'deepseek-official': 'anthropic', 'openrouter': 'openai',
     'seen-oa': 'openai', 'seen-ant': 'anthropic', 'mystery': undefined,
   })

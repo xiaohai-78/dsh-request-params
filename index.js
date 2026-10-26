@@ -64,7 +64,7 @@ export function apply(ctx) {
   const stateDir = join(dirname(ctx.configEditor.documentPath), STATE_DIR)
   const store = new ConfigStore(stateDir)
   const updates = selfUpdateActions({ ctx, stateDir, refuse: (code, text, details) => new ActionError(code, text, details) })
-  const m = { ctx, store, updates, config: { enabled: true, rules: [] }, revision: 0, damaged: undefined, seen: undefined, checkedAt: 0, version: PACKAGE_VERSION === 'unknown' ? undefined : PACKAGE_VERSION, catalog: createCatalog() }
+  const m = { ctx, store, updates, config: { enabled: true, rules: [], protocols: {} }, revision: 0, damaged: undefined, seen: undefined, checkedAt: 0, version: PACKAGE_VERSION === 'unknown' ? undefined : PACKAGE_VERSION, catalog: createCatalog() }
   // The first request waits for the rules; later ones check the file at most every few seconds.
   const settle = promise => promise.catch(error => ctx.logger.warn(`dsh-request-params could not read its rules: ${message(error)}`))
   m.loading = settle(load(m))
@@ -95,7 +95,7 @@ async function load(m) {
     m.damaged = undefined
   } catch (error) {
     if (!(error instanceof ConfigFileError)) throw error
-    m.config = { enabled: true, rules: [] }
+    m.config = { enabled: true, rules: [], protocols: {} }
     m.damaged = { path: error.path, message: error.message }
     m.ctx.logger.warn(`dsh-request-params is not applying any rule: ${error.message}`)
   }
@@ -148,6 +148,7 @@ function snapshot(m) {
     damaged: m.damaged,
     enabled: m.config.enabled,
     rules: m.config.rules,
+    protocols: m.config.protocols,
     problems: validateConfig(m.config),
     env: envStatus(m.config),
     recent: m.interceptor.recent(),

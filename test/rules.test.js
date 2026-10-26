@@ -141,7 +141,7 @@ test('keeps what is valid when reading a stored configuration and drops the rest
   assert.deepEqual(normalized.rules[0].body, { merge: { a: 1 }, defaults: {}, remove: ['b'] })
   assert.deepEqual(normalized.rules[0].headers, { set: { 'X-N': '5' }, remove: ['x-r'] })
   assert.notEqual(normalized.rules[1].id, 'dup', 'a repeated id is replaced')
-  assert.deepEqual(normalizeConfig('junk'), { enabled: true, rules: [] })
+  assert.deepEqual(normalizeConfig('junk'), { enabled: true, rules: [], protocols: {} })
 })
 
 test('counts a header-only rule as a change', () => {

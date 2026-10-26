@@ -36,6 +36,8 @@ test('every key the page names exists', () => {
   for (const id of ['openrouter-routing', 'reasoning', 'sampling', 'session', 'attribution', 'strip', 'custom']) for (const part of ['name', 'desc']) used.add(`preset.${id}.${part}`)
   for (const id of ['vllm-thinking', 'helicone', 'cloudflare', 'openai-cache']) for (const part of ['name', 'desc']) used.add(`recipe.${id}.${part}`)
   for (const sort of ['price', 'throughput', 'latency']) used.add(`sum.sort.${sort}`)
+  for (const id of ['openrouter', 'vllm', 'openai', 'helicone', 'cloudflare']) for (const prefix of ['ext', 'ext.short']) used.add(`${prefix}.${id}`)
+  for (const format of ['openai', 'anthropic', 'other', 'unknown']) used.add(`protocol.format.${format}`)
   for (const source of ['settings', 'default', 'environment', 'seen', 'unknown']) used.add(`channels.source.${source}`)
   for (const kind of ['set', 'default', 'remove', 'header', 'header-remove']) used.add(`change.${kind}`)
   for (const reason of ['env-missing', 'bad-value']) used.add(`skipped.${reason}`)
@@ -75,14 +77,46 @@ test('a gateway error is matched to the fields a rule set, by whole words', () =
   assert.deepEqual(mentionedFields({ errorText: 'store is not supported', changes: [{ kind: 'remove', path: 'store' }] }), [], 'a removed field was not sent')
 })
 
-test('a channel offers the recipes whose body fields fit its request format', () => {
-  const choicesFor = extract('const PRESET_ORDER', 'function problemText', 'choicesFor')
-  const recipes = format => choicesFor({ openrouter: false, ...format === undefined ? {} : { format } }).recipes
-  assert.deepEqual(recipes('anthropic'), ['helicone', 'cloudflare'])
-  assert.deepEqual(recipes('openai'), ['vllm-thinking', 'helicone', 'cloudflare', 'openai-cache'])
-  assert.deepEqual(recipes(undefined), ['vllm-thinking', 'helicone', 'cloudflare', 'openai-cache'])
-  assert.deepEqual(choicesFor({ openrouter: true, format: 'openai' }).recipes, [])
-  assert.equal(choicesFor(undefined).recipes.length, 4)
+/** The kinds of parameter, what each needs, and how a channel's protocol picks among them. */
+const kinds = () => extract('const PRESET_ORDER', 'function problemText', '{ protocolOf, fits, choicesFor, needLabel, EXTENSIONS }')
+
+test('a channel reads what dsh detected, with the declaration for its endpoint on top', () => {
+  const { protocolOf } = kinds()
+  const channel = { key: 'llm.example/v1', detected: { format: 'openai', extensions: ['openrouter'] } }
+  assert.deepEqual(protocolOf(channel, {}), { format: 'openai', extensions: ['openrouter'], declared: false })
+  assert.deepEqual(protocolOf(channel, { 'llm.example/v1': { format: 'anthropic', extensions: { openrouter: false, vllm: true } } }), { format: 'anthropic', extensions: ['vllm'], declared: true })
+  assert.deepEqual(protocolOf(channel, { 'other.example': { format: 'other' } }).format, 'openai')
+  assert.deepEqual(protocolOf({ detected: { extensions: [] } }, { undefined: { format: 'other' } }), { format: undefined, extensions: [], declared: false })
+})
+
+test('a channel offers first the kinds it reads, most specific first, and folds the rest without dropping any', () => {
+  const { choicesFor } = kinds()
+  const all = choice => [...choice.presets, ...choice.recipes, ...choice.other].sort()
+  const recipes = ['recipe:vllm-thinking', 'recipe:helicone', 'recipe:cloudflare', 'recipe:openai-cache']
+  const openrouter = choicesFor({}, { format: 'openai', extensions: ['openrouter'] })
+  assert.deepEqual(openrouter.presets, ['openrouter-routing', 'reasoning', 'attribution', 'sampling', 'custom', 'session', 'strip'])
+  assert.deepEqual(openrouter.recipes, [])
+  assert.deepEqual(openrouter.other, recipes)
+  const anthropic = choicesFor({}, { format: 'anthropic', extensions: [] })
+  assert.deepEqual(anthropic.presets, ['custom', 'session', 'strip'])
+  assert.deepEqual(anthropic.other, ['openrouter-routing', 'reasoning', 'attribution', 'sampling', ...recipes])
+  const vllm = choicesFor({}, { format: 'openai', extensions: ['vllm'] })
+  assert.deepEqual(vllm.presets, ['sampling', 'custom', 'session', 'strip'])
+  assert.deepEqual(vllm.recipes, ['recipe:vllm-thinking'])
+  // An unknown format reads every format's fields; only extensions are left out.
+  assert.deepEqual(choicesFor({}, { format: undefined, extensions: [] }).presets, ['sampling', 'custom', 'session', 'strip'])
+  for (const choice of [openrouter, anthropic, vllm]) assert.equal(all(choice).length, 11)
+  const elsewhere = choicesFor(undefined, undefined)
+  assert.deepEqual(elsewhere.presets, ['openrouter-routing', 'reasoning', 'sampling', 'session', 'attribution', 'strip', 'custom'])
+  assert.deepEqual(elsewhere.recipes, recipes)
+  assert.deepEqual(elsewhere.other, [])
+})
+
+test('the page and the Host list the same formats and extensions', async () => {
+  const { EXTENSIONS: host } = await import('../protocols.js')
+  assert.deepEqual(kinds().EXTENSIONS, host)
+  const { FORMATS } = await import('../protocols.js')
+  assert.deepEqual(extract('const FORMATS', 'const EXTENSIONS', 'FORMATS'), FORMATS)
 })
 
 /** The page's pure helpers for channels, summaries, and the preview, with the two small helpers they use. */
