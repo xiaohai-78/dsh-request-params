@@ -16,13 +16,13 @@ Each *parameter* belongs to a channel (or names its own hosts, models, and paths
 
 ## Highlights
 
-- **Organized by channel.** The page lists the model channels dsh is set up with (the official DeepSeek route and every `llm-pi-ai` route) and the address each one sends to. Open a channel to see its parameters and add one in a click; it is matched to that channel for you. Parameters for any other address are under **Other addresses**.
+- **Organized by channel.** The page lists the model channels dsh is set up with (the official DeepSeek channel and each one configured in `llm-pi-ai`) and the address each one sends to. Open a channel to see its parameters and add one in a click; it is matched to that channel for you. Parameters for any other address are under **Other addresses**.
 - **Knows what each channel reads.** Each channel shows which request format it reads (OpenAI or Anthropic) and which extra fields (OpenRouter's `provider` and `reasoning`, vLLM's `chat_template_kwargs`, …), worked out from dsh's settings and its address. The kinds of parameter it reads come first; the rest wait under **Other kinds**. A gateway of your own that speaks OpenRouter's protocol gets provider routing once you tick **OpenRouter fields** for it.
 - **See what will be sent.** **Added when sending** shows, as JSON, what the channel's parameters add to a request for the model you pick, including unsaved edits. Nothing is sent.
 - **Pick providers, do not hand-write JSON.** **Provider routing** is one list: search providers (the ones that serve the previewed model come first, with price and uptime), put them in order, decide whether other providers may be used, exclude some, sort, require zero data retention, add fallback models; price caps, quantization, an allow list, and speed preferences are under **More conditions**. A provider that does not serve the model is flagged, and a list that would fail with "No endpoints found" is called out before you save.
 - **See what happened after.** Each channel shows its recent requests: the status, what was added, and, when the gateway refused, what it said. **Request log** has every model request dsh sent.
 - **Safe by default.** Core fields (`messages`, `tools`, `model`, …) and credential headers (`Authorization`, `x-api-key`, …) cannot be changed. Secrets come from environment variables (`{{env:NAME}}`) and are never shown. If something goes wrong while applying a parameter, the request goes out unchanged instead of failing.
-- **One hook for the usual routes.** The official DeepSeek endpoint and the OpenAI-compatible and Anthropic-compatible routes of `llm-pi-ai` (OpenRouter, a self-hosted vLLM, an enterprise gateway) all go through the same `fetch` hook; see Compatibility for what was verified.
+- **One hook for the usual channels.** The official DeepSeek endpoint and the OpenAI-compatible and Anthropic-compatible channels of `llm-pi-ai` (OpenRouter, a self-hosted vLLM, an enterprise gateway) all go through the same `fetch` hook; see Compatibility for what was verified.
 - **Updates in one click.** The page tells you when a newer version of this plugin is out and installs it with DSH's own installer after you confirm.
 - **Everyday comforts.** A switch pauses everything at once. Unsaved edits survive leaving the page, and Ctrl/⌘ + S saves. Deleting can be undone. A rules file changed elsewhere is detected instead of overwritten. Parameters export to and import from JSON. English and Chinese, light and dark, down to phone width. If the page itself fails to draw, it shows the error and **Reload** instead of an empty panel.
 
@@ -98,7 +98,7 @@ Which kinds a channel offers first follows what it reads (see **What a channel r
 
 Under its address, each channel shows its protocol: the request format it reads and the extra fields it reads on top.
 
-- **Worked out for you**: the format comes from the route's `api` setting in `llm-pi-ai` (`openai-completions`, `anthropic-messages`, …), from the official DeepSeek routes (Anthropic), from the hosted service, or from the paths of the requests seen. Hosted services are recognized by their address: openrouter.ai (OpenRouter fields), helicone.ai, gateway.ai.cloudflare.com, and api.openai.com.
+- **Worked out for you**: the format comes from the channel's `api` setting in `llm-pi-ai` (`openai-completions`, `anthropic-messages`, …), from the official DeepSeek channels (Anthropic), from the hosted service, or from the paths of the requests seen. Hosted services are recognized by their address: openrouter.ai (OpenRouter fields), helicone.ai, gateway.ai.cloudflare.com, and api.openai.com.
 - **Yours to correct**: **Change** sets the format and ticks the fields the endpoint reads. The common case is a gateway of your own that speaks OpenRouter's protocol: tick **OpenRouter fields**, and provider routing, reasoning effort, and app attribution come first on that channel. The setting is saved with the parameters under the endpoint's host and base path; **Use what was detected** removes it.
 - **What it changes**: only which kinds come first and how sure the catalog hints are. Requests are sent as the parameters say, whatever the protocol.
 - **Catalog hints**: the provider list and whether a provider serves a model come from the public OpenRouter catalog. For a parameter that goes to openrouter.ai, a provider list none of which serves the previewed model is called out before you save. For any other gateway the same hints are only a reference: use the provider names your gateway expects, typed in if needed.
@@ -113,7 +113,7 @@ Under its address, each channel shows its protocol: the request format it reads 
 
 Every parameter has a scope. On a channel, **All models** limits it to some of the channel's models (`deepseek/*`, `*-chat`), and **Edit hosts and paths** in its menu shows the address it matches. Under **Other addresses** a parameter names its own *hosts* (`openrouter.ai`, `*.example.com`, `127.0.0.1:8130`), optional *models*, and optional *paths* (prefix). Without a path, it reaches model endpoints only (`…/chat/completions`, `…/messages`, `…/responses`, `…:generateContent`); name a path to reach another endpoint.
 
-When several parameters apply to one request they run from top to bottom, and a later one sees the result of the earlier ones. Values may use `{{model}}` (the request's model), `{{session}}` (the dsh session ID; for routes where dsh sends none, a stable key derived from the conversation), and `{{env:NAME}}` (an environment variable; if it is not set the field is skipped and the log says so).
+When several parameters apply to one request they run from top to bottom, and a later one sees the result of the earlier ones. Values may use `{{model}}` (the request's model), `{{session}}` (the dsh session ID; for channels where dsh sends none, a stable key derived from the conversation), and `{{env:NAME}}` (an environment variable; if it is not set the field is skipped and the log says so).
 
 <p align="center">
   <picture>
@@ -184,7 +184,7 @@ dsh's model adapters send requests through the global `fetch`. This plugin wraps
 ## Compatibility and limits
 
 - Needs dsh with the web client and Node `^22.19.0 || >=24`. Tested with dsh 0.2.1-rc.2.
-- Verified against real dsh runs on three routes: the official DeepSeek endpoint (`/v1/messages`), an OpenAI-compatible `llm-pi-ai` route (`/chat/completions`), and an Anthropic-compatible `llm-pi-ai` route (`/v1/messages`).
+- Verified against real dsh runs on three kinds of channel: the official DeepSeek endpoint (`/v1/messages`), an OpenAI-compatible `llm-pi-ai` channel (`/chat/completions`), and an Anthropic-compatible `llm-pi-ai` channel (`/v1/messages`).
 - Applies to requests sent through the global `fetch`. A provider that captured its own `fetch` earlier would not be seen; the request log shows what the plugin saw.
 - A gateway may ignore or reject fields it does not know. OpenRouter ignores unsupported parameters unless `require_parameters` is on.
 - Limits: 100 parameters; per parameter, 64 KB of JSON each for the body fields and the defaults, and 40 headers.
@@ -210,6 +210,8 @@ The page checks for a newer version of this plugin and can install it.
 
 ## Development
 
+Before changing the plugin, read [AGENTS.md](AGENTS.md), [docs/requirements.md](docs/requirements.md), [docs/adr/](docs/adr/), and [GLOSSARY.md](GLOSSARY.md).
+
 | File | Role |
 |---|---|
 | `index.js` | Host plugin: wraps `fetch`, serves `POST /api/dsh-request-params` (`get`, `save`, `check`, `dryRun`, `preset`, `recent`, `clearRecent`, `resetDamaged`, `channels`, `orProviders`, `orModels`, `orEndpoints`, and the update actions `updateStatus`, `setUpdateCheck`, `dismissUpgraded`, `upgrade`, `upgradeStatus`, `cancelUpgrade`), reloads the rules when the file changes |
@@ -218,20 +220,20 @@ The page checks for a newer version of this plugin and can install it.
 | `presets.js` | Preset forms and the rules they build |
 | `config-store.js` | Rules file with atomic writes and revision checks |
 | `channels.js` | Reads the configured channels from dsh's `llm` and `settings` services and works out each one's endpoint and protocol |
-| `protocols.js` | What an endpoint reads: the formats and extensions, working them out from a route's settings and address, and reading the protocols set in the rules file |
+| `protocols.js` | What an endpoint reads: the formats and extensions, working them out from a channel's settings and address, and reading the protocols set in the rules file |
 | `update.js` | Version check helpers without DSH services: version comparison, how the profile depends on the package, the registries to ask, and the check that the registry's tarball address is this package's file on that registry |
 | `self-update.js` | The update actions: the check with its 12-hour cache, the switch and the note an upgrade leaves in `<profile>/.dsh-request-params/settings.json`, and the install through DSH's plugin manager (`installBundle`, `cancelInstall`, the `plugin-manager/install-state` progress) |
 | `openrouter.js` | OpenRouter catalog client with cache and offline fallback; `openrouter-providers.json` is the built-in provider list |
 | `client.js` | The web page (English and Chinese): channel list, preview, parameter cards, request log, dry run |
 | `test/` | `node --test` suites; `test/fixtures/` holds trimmed OpenRouter catalog answers |
 
-### Verification
+### Tests
 
 ```bash
 npm test
 ```
 
-runs 119 tests with `node --test`: the rule engine, the `fetch` wrapper (chain safety, bodies as strings, bytes, or `Request`, error capture), presets, the rules file, the catalog client, reading the configured channels and what each reads, the host actions, the page's matching of parameters and requests to channels, the kinds it offers for each protocol, and its preview and summaries, the update check and upgrade, that the package publishes every module it imports, and that both languages of the page have the same text. The page and the hook were also run end to end against real dsh processes with a local mock model server: all three routes above, parameters added per channel and seen in the requests that went out, OpenRouter fields ticked for an OpenAI-compatible relay and provider routing arriving in the requests it received, the preview, provider search and the not-serving flag, saving, pausing, undo, import and export, a rules file changed elsewhere, and light, dark, narrow, and phone layouts. Updating was checked against the real npm registry on dsh 0.2.1-rc.2: a copy labelled 0.0.9 found 0.1.0, **Upgrade…** installed it through DSH's installer, the profile then depended on the 0.1.0 tarball, and the new version took over without a restart; installing the same release again reported it as installed and waiting for a restart. Screenshots in this README come from that setup; the OpenRouter catalog in them is OpenRouter's public one, and no request was sent to OpenRouter.
+runs the `node --test` suites in `test/`. What each feature must do, and how it was verified on real dsh runs, is in [docs/requirements.md](docs/requirements.md). Screenshots in this README come from those runs; the OpenRouter catalog in them is OpenRouter's public one, and no request was sent to OpenRouter.
 
 ## Changes
 
